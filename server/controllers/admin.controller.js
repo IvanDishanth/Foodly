@@ -38,3 +38,31 @@ export const deleteUserById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// @desc    Update user by ID
+// @route   PUT /api/admin/users/:id
+// @access  Admin
+export const updateUserById = async (req, res) => {
+  try {
+    const { name, email, phone, role } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Prevent updating email to one that already exists
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) return res.status(400).json({ message: "Email already in use" });
+      user.email = email;
+    }
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (role) user.role = role;
+
+    await user.save();
+    const { password, ...userWithoutPassword } = user.toObject();
+    res.status(200).json({ message: "User updated successfully", user: userWithoutPassword });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
