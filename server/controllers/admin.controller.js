@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Restaurant from "../models/restaurant.model.js";
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -62,6 +63,78 @@ export const updateUserById = async (req, res) => {
     await user.save();
     const { password, ...userWithoutPassword } = user.toObject();
     res.status(200).json({ message: "User updated successfully", user: userWithoutPassword });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+// @desc    Get all restaurants
+// @route   GET /api/admin/restaurants
+// @access  Admin
+export const getAllRestaurants = async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find();
+    res.status(200).json(restaurants);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Get restaurant by ID
+// @route   GET /api/admin/restaurants/:id
+// @access  Admin
+export const getRestaurantById = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
+    res.status(200).json(restaurant);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Update restaurant by ID
+// @route   PUT /api/admin/restaurants/:id
+// @access  Admin
+export const updateRestaurantById = async (req, res) => {
+  try {
+    const { name, address, phone, cuisine } = req.body;
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
+
+    if (name) restaurant.name = name;
+    if (address) restaurant.address = address;
+    if (phone) restaurant.phone = phone;
+    if (cuisine) restaurant.cuisine = cuisine;
+
+    await restaurant.save();
+    res.status(200).json({ message: "Restaurant updated successfully", restaurant });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Delete restaurant by ID
+// @route   DELETE /api/admin/restaurants/:id
+// @access  Admin
+export const deleteRestaurantById = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
+    await restaurant.deleteOne();
+    res.status(200).json({ message: "Restaurant deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
