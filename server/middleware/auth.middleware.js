@@ -17,6 +17,7 @@ export const protect = async (req, res, next) => {
 
 // isAdmin middleware: checks if user is admin
 export const isAdmin = (req, res, next) => {
+  console.log("isAdmin req.user:", req.user); // Debug log
   if (req.user && req.user.role === "admin") {
     next();
   } else {

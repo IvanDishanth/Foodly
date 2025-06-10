@@ -77,6 +77,33 @@ export const updateUserById = async (req, res) => {
 
 
 
+// @desc    Create a new restaurant
+// @route   POST /api/admin/restaurants
+// @access  Admin
+export const createRestaurant = async (req, res) => {
+  try {
+    const { name, email, address, phone, cuisine, role } = req.body;
+
+    // Check if restaurant with this email already exists
+    const exists = await Restaurant.findOne({ email });
+    if (exists) return res.status(400).json({ message: "Restaurant already exists" });
+
+    const restaurant = new Restaurant({
+      name,
+      email,
+      address,
+      phone,
+      cuisine,
+      role
+    });
+
+    await restaurant.save();
+    res.status(201).json({ message: "Restaurant created successfully", restaurant });
+  } catch (error) {
+    console.error(error); // <-- Add this line
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 
@@ -84,6 +111,7 @@ export const updateUserById = async (req, res) => {
 // @route   GET /api/admin/restaurants
 // @access  Admin
 export const getAllRestaurants = async (req, res) => {
+  console.log("getAllRestaurants called"); // Add this line
   try {
     const restaurants = await Restaurant.find();
     res.status(200).json(restaurants);
