@@ -105,8 +105,6 @@ export const createRestaurant = async (req, res) => {
   }
 };
 
-
-
 // @desc    Get all restaurants
 // @route   GET /api/admin/restaurants
 // @access  Admin

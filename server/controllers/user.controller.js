@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Restaurant from "../models/restaurant.model.js";
 
 // @desc    Get current user profile
 // @route   GET /api/user
@@ -56,10 +57,22 @@ export const deleteUser = async (req, res) => {
 // @access  Private
 export const logoutUser = (req, res) => {
   try {
-    // If using cookies for JWT, clear it here
     res.clearCookie("token");
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Get all restaurants (for users)
+// @route   GET /api/user/restaurants
+// @access  Public or Private (add protect if needed)
+export const getAllRestaurantsForUser = async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find();
+    res.status(200).json(restaurants);
+  } catch (error) {
+    console.error(error); // Log the error for debugging
     res.status(500).json({ message: "Server error" });
   }
 };

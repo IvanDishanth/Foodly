@@ -4,6 +4,7 @@ import {
   updateUserProfile,
   deleteUser,
   logoutUser,
+  getAllRestaurantsForUser,
 } from "../controllers/user.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 
@@ -13,5 +14,6 @@ router.get("/", protect, getUserProfile);
 router.put("/", protect, updateUserProfile);
 router.delete("/delete", protect, deleteUser);
 router.post("/logout", protect, logoutUser);
+router.get("/restaurants", getAllRestaurantsForUser);
 
 export default router;
