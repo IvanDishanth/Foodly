@@ -23,3 +23,28 @@ export const adminOnly = (req, res, next) => {
     res.status(403).json({ message: "Admin access denied" });
   }
 };
+
+// Superadmin-only middleware
+export const superAdminOnly = (req, res, next) => {
+  if (req.user && req.user.role === "superadmin") {
+    next();
+  } else {
+    res.status(403).json({ message: "Superadmin access denied" });
+  }
+};
+
+export const superAadminOradmin = (req, res, next) => {
+  if (req.user && (req.user.role === "superadmin" || req.user.role === "admin")) {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied" });
+  }
+};
+
+export const superAadminOruser = (req, res, next) => {
+  if (req.user && (req.user.role === "superadmin" || req.user.role === "user")) {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied" });
+  }
+};

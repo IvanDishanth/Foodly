@@ -165,3 +165,47 @@ export const deleteRestaurantById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Update restaurant status (only by the assigned admin)
+export const updateRestaurantStatus = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+    console.log("restaurant:", restaurant);
+    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
+
+    if (!restaurant.admin) {
+      return res.status(500).json({ message: "Restaurant admin field missing" });
+    }
+
+    if (restaurant.admin.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized for this restaurant" });
+    }
+
+    if (!req.body.status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    restaurant.status = req.body.status;
+    await restaurant.save();
+    res.json(restaurant);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get all bookings for restaurant owned by the logged-in admin
+export const getAllBookings = async (req, res) => {
+  try {
+    const adminRestaurants = await Restaurant.find({ admin: req.user._id });
+    const restaurantIds = adminRestaurants.map((restaurant) => restaurant._id);
+
+    const bookings = await Booking.find({ restaurant: { $in: restaurantIds } })
+      .populate("user restaurant");
+
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch bookings", error: error.message });
+  }
+};
+

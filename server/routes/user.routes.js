@@ -14,6 +14,6 @@ router.get("/", protect, getUserProfile);
 router.put("/", protect, updateUserProfile);
 router.delete("/delete", protect, deleteUser);
 router.post("/logout", protect, logoutUser);
-router.get("/restaurants", getAllRestaurantsForUser);
+router.get("/restaurants", protect, getAllRestaurantsForUser);
 
 export default router;

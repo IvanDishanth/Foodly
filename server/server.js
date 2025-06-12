@@ -20,11 +20,13 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use("/api/users", userRoutes);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://ivandishanth:04EBcKL59gTZn3TS@cluster0.fjbzltb.mongodb.net/Foodly', {
