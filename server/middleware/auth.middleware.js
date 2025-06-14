@@ -33,6 +33,15 @@ export const superAdminOnly = (req, res, next) => {
   }
 };
 
+// user-only middleware
+export const user = (req, res, next) => {
+  if (req.user && req.user.role === "user") {
+    next();
+  } else {
+    res.status(403).json({ message: "user access denied" });
+  }
+};
+
 export const superAadminOradmin = (req, res, next) => {
   if (req.user && (req.user.role === "superadmin" || req.user.role === "admin")) {
     next();

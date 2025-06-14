@@ -6,6 +6,11 @@ const feedbackSchema = new mongoose.Schema({
   message: { type: String, required: true },
   rating: { type: Number, min: 1, max: 5 },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+  role: {
+    type: String,
+    enum: ["user"],
+    default: "user"
+  },
 }, {
   timestamps: true,
 });

@@ -5,16 +5,15 @@ import {
   getFeedbackById,
   deleteFeedback,
 } from "../controllers/feedback.controller.js";
-import { protect, adminOnly } from "../middleware/auth.middleware.js";
-
+import { protect, superAadminOradmin,user,superAdminOnly } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 // Public or Authenticated
-router.post("/", protect, createFeedback);
+router.post("/", protect,user, createFeedback);
 
 // Admin Routes
-router.get("/", protect, adminOnly, getAllFeedbacks);
-router.get("/:id", protect, adminOnly, getFeedbackById);
-router.delete("/:id", protect, adminOnly, deleteFeedback);
+router.get("/", protect, superAadminOradmin, getAllFeedbacks);
+router.get("/:id", protect, superAdminOnly, getFeedbackById);
+router.delete("/:id", protect, superAdminOnly, deleteFeedback);
 
 export default router;
