@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -19,7 +18,6 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Match password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

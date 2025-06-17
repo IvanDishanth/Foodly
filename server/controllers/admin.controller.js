@@ -91,6 +91,7 @@ export const createRestaurant = async (req, res) => {
     const restaurant = new Restaurant({
       name,
       email,
+      Password,
       address,
       phone,
       cuisine,
@@ -100,7 +101,7 @@ export const createRestaurant = async (req, res) => {
     await restaurant.save();
     res.status(201).json({ message: "Restaurant created successfully", restaurant });
   } catch (error) {
-    console.error(error); // <-- Add this line
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -109,7 +110,7 @@ export const createRestaurant = async (req, res) => {
 // @route   GET /api/admin/restaurants
 // @access  Admin
 export const getAllRestaurants = async (req, res) => {
-  console.log("getAllRestaurants called"); // Add this line
+  console.log("getAllRestaurants called");
   try {
     const restaurants = await Restaurant.find();
     res.status(200).json(restaurants);
@@ -187,28 +188,25 @@ export const deleteRestaurantById = async (req, res) => {
 
 
 
-export const makeSelfAdminOfRestaurant = async (req, res) => {
+export const changeRestaurantRole = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.params.id);
-
+    const { role } = req.body; // role should be 'Restaurant' or 'admin'
+    if (!['Restaurant', 'admin'].includes(role)) {
+      return res.status(422).json({ success: false, message: 'Invalid role value' });
+    }
+    const restaurant = await Restaurant.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true, runValidators: true }
+    );
     if (!restaurant) {
-      return res.status(404).json({ message: "Restaurant not found" });
+      return res.status(404).json({ success: false, message: 'Restaurant not found' });
     }
-
-    // Only superadmin can do this
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: "Only superadmin can assign themselves as admin" });
-    }
-
-    restaurant.admin = req.user._id; // superadmin becomes admin
-    await restaurant.save();
-
-    res.status(200).json({ message: "admin is now the admin of this restaurant", restaurant });
+    res.status(200).json({ success: true, message: 'Restaurant role updated', data: restaurant });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
-
 
 // Update restaurant status (only by the assigned admin)
 export const updateRestaurantStatus = async (req, res) => {
@@ -233,21 +231,3 @@ export const updateRestaurantStatus = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-
-
-// Get all bookings for restaurant owned by the logged-in admin
-export const getAllBookings = async (req, res) => {
-  try {
-    const adminRestaurants = await Restaurant.find({ admin: req.user._id });
-    const restaurantIds = adminRestaurants.map((restaurant) => restaurant._id);
-
-    const bookings = await Booking.find({ restaurant: { $in: restaurantIds } })
-      .populate("user restaurant");
-
-    res.json(bookings);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch bookings", error: error.message });
-  }
-};
-

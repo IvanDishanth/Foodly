@@ -9,18 +9,11 @@ import {
   getRestaurantById,
   deleteRestaurantById,
   updateRestaurantById,
-  getAllBookings,
   updateRestaurantStatus,
-  makeSelfAdminOfRestaurant,
+  changeRestaurantRole,
   // updateHotelStatus, // Uncomment if you have this function
 } from "../controllers/admin.controller.js";
 import { protect,superAdminOnly, adminOnly,superAadminOradmin,superAadminOruser } from "../middleware/auth.middleware.js";
-
-
-
-
-
-
 
 
 const router = express.Router();
@@ -37,9 +30,8 @@ router.get("/restaurants/:id", protect, superAdminOnly, getRestaurantById);
 router.put("/restaurants/:id", protect, superAdminOnly, updateRestaurantById);
 router.delete("/restaurants/:id", protect, superAadminOradmin, deleteRestaurantById);
 router.post("/restaurants", protect, superAadminOradmin, createRestaurant);
-router.get("/admin/bookings", protect, superAadminOradmin, getAllBookings);
-router.put("/restaurants/:id/status", protect, superAadminOradmin, updateRestaurantStatus);
-router.put('/restaurants/:id/make-self-admin', protect,adminOnly, makeSelfAdminOfRestaurant);
+router.put("/restaurants/:id/status", protect,adminOnly, updateRestaurantStatus);
+router.put("/restaurants/:id/role",protect, superAadminOradmin, changeRestaurantRole);
 
 
 

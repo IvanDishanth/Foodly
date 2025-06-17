@@ -3,16 +3,25 @@ import mongoose from "mongoose";
 const restaurantSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
   address: String,
   phone: String,
   cuisine: String,
-  role: {
-    type: String,
-    enum: ["partner", "franchise", "branch", "restaurant"],
-    default: "partner"
+  admin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  location: {
+  
+    type: {
+      type: String,
+      enum: ["Point"],
+      default: "Point",
+    },
+    coordinates: {
+      type: [Number],
+      required: false,
+    },
   },
-  status: { type: String, enum: ["open", "closed"], default: "open" }, // <-- Add this
-  admin: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // <-- Add this
 });
+
+
 
 export default mongoose.model("Restaurant", restaurantSchema);

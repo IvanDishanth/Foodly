@@ -72,7 +72,7 @@ export const getAllRestaurantsForUser = async (req, res) => {
     const restaurants = await Restaurant.find();
     res.status(200).json(restaurants);
   } catch (error) {
-    console.error(error); // Log the error for debugging
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
