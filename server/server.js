@@ -11,11 +11,6 @@ import imageRoutes from './routes/image.routes.js';
 import path from 'path';
 import paymentRoutes from './routes/payment.routes.js';
 
-
-
-
-
-
 dotenv.config();
 
 const app = express();
