@@ -1,12 +1,15 @@
+
 import React from "react";
 import foodImage from "../assets/Images/bg.jpg"; 
 import logo from "../assets/Images/logo.png";
-import plate from "../assets/Images/goldplate.png"; // Assuming you have a plate image
-import food from "../assets/Images/food.png"; // Assuming you have a food image
-
+import plate from "../assets/Images/goldplate.png";
+import food from "../assets/Images/plate2.png"; 
+import About from "./About.jsx";
+import Service from "./Service.jsx";
 
 const FoodyHero = () => {
   return (
+    <>
     <div
       className="w-full h-screen flex flex-col items-center justify-center bg-black relative overflow-hidden"
       style={{
@@ -23,7 +26,7 @@ const FoodyHero = () => {
         <h1 className="text-6xl font-bold mt-4">
           <img src={logo} alt="Food" className="object-cover w-64 h-30" />
         </h1>
-        <p className="text-yellow-300  text-sm">Seamless dining starts with Fudly</p>
+        <p className="text-[#FAB503]  text-sm">Seamless dining starts with Fudly</p>
       </div>
 
       {/* Circle with food image */}
@@ -51,18 +54,21 @@ const FoodyHero = () => {
           className="absolute top-1/2 left-1/2 w-[510px] h-[510px] object-cover z-20"
           style={{ transform: "translate(-50%, -55%)" }}
         />
+
         <img
           src={food}
           alt="Food"
-          className="absolute top-1/2 left-1/2 w-[330px] h-[330px] object-cover z-30"
+          className="absolute top-1/2 left-1/2 w-[300px] h-[300px] object-cover z-30 cursor-pointer flex justify-center items-center"
+          onClick={() => window.location.href = "/About.jsx"} // Navigate to About page on click
           style={{ transform: "translate(-48%, -54%)" }}
         />
       </div>
-    
-
       {/* Bottom Yellow Background */}
-      <div className="absolute bottom-0 w-full h-[45%] bg-yellow-500 rounded-t-[0%]"></div>
+      <div className="absolute bottom-0 w-full h-[45%] bg-[#FAB503] rounded-t-[0%]"></div>
     </div>
+    <About />
+    <Service />
+    </>
   );
 };
 

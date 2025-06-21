@@ -26,12 +26,10 @@ const UserZone = () => {
                             
                         </div>
                         </div>
-            
 
                 {/* Right Side */}
-                <div className="w-3/4 bg-yellow-400 flex flex-col justify-center items-center space-y-12 p-10">
-                 
-                
+                <div className="w-3/4 bg-[#FAB503] flex flex-col justify-center items-center space-y-12 p-10">
+
                     {/* User button */}
                     <div className="bg-black p-6 rounded-2xl text-center w-2/3 hover:scale-105 transition-transform cursor-pointer">
                         <img src={userIcon} alt="User" className="mx-auto w-12 h-12 mb-2" />
@@ -44,7 +42,6 @@ const UserZone = () => {
                         <h2 className="text-yellow-400 font-semibold text-lg">Restaurant</h2>
                     </div>
                     <div className="w-full h-1 bg-black mt- rounded-full" />
-                
                 </div>
             </div>
         </div>
