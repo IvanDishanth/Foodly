@@ -1,37 +1,47 @@
 import User from '../models/user.model.js';
 import Restaurant from '../models/restaurant.model.js';
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+};
 export const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;  // <-- add `name` here
   try {
     const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: "User already exists" });
+    if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    const user = await User.create({ name, email, password, role });
-    res.status(201).json({ message: "User registered successfully" });
+    const user = await User.create({ name, email, password });
+    const token = generateToken(user._id);
+    res.status(201).json({ token });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-export const login = async (req, res) => {
+
+export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    console.log('User found:', user);
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "7d"
-    });
+    const isMatch = await user.matchPassword(password);
+    console.log('Password match:', isMatch);
 
-    res.status(200).json({ token, user: { id: user._id, name: user.name, role: user.role } });
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const token = generateToken(user._id);
+    res.json({ token });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
@@ -41,12 +51,10 @@ export const registerRestaurant = async (req, res) => {
   try {
     const { name, email, password, address, phone, cuisine } = req.body;
 
-    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists)
       return res.status(400).json({ message: "User already exists" });
 
-    // Check if restaurant already exists
     const restaurantExists = await Restaurant.findOne({ email });
     if (restaurantExists)
       return res.status(400).json({ message: "Restaurant already exists" });
@@ -94,6 +102,7 @@ export const registerRestaurant = async (req, res) => {
   }
 };
 
+
 export const loginRestaurant = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -106,6 +115,12 @@ export const loginRestaurant = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
+    const token = jwt.sign(
+      { id: restaurant._id, role: "restaurant" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     res.status(200).json({
       message: "Restaurant login successful",
       restaurant: {
@@ -113,9 +128,9 @@ export const loginRestaurant = async (req, res) => {
         name: restaurant.name,
         email: restaurant.email,
       },
+      token,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-

@@ -208,26 +208,20 @@ export const changeRestaurantRole = async (req, res) => {
   }
 };
 
-// Update restaurant status (only by the assigned admin)
 export const updateRestaurantStatus = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.params.id);
-    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
-
-    // Only allow the admin who owns the restaurant to update status
-    if (restaurant.admin.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Unauthorized for this restaurant" });
-    }
-
-    if (!req.body.status) {
+    const { status } = req.body;
+    if (!status) {
       return res.status(400).json({ message: "Status is required" });
     }
-
-    restaurant.status = req.body.status;
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+    restaurant.status = status;
     await restaurant.save();
     res.status(200).json({ message: "Restaurant status updated", restaurant });
   } catch (error) {
-    console.error("Update restaurant status error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };

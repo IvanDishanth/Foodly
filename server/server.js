@@ -11,6 +11,7 @@ import imageRoutes from './routes/image.routes.js';
 import path from 'path';
 import paymentRoutes from './routes/payment.routes.js';
 
+
 dotenv.config();
 
 const app = express();
@@ -34,9 +35,16 @@ app.use("/uploads", express.static("uploads"));
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/api', imageRoutes); 
 app.use('/api/payment', paymentRoutes);
+app.use("/api/Restaurants", authRoutes); 
+app.get('/test-env', (req, res) => {
+  res.send(process.env.JWT_SECRET || 'JWT not set');
+});
+
+// CORS Configuration
+
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://ivandishanth:04EBcKL59gTZn3TS@cluster0.fjbzltb.mongodb.net/Foodly', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://ivandishanth:6YRs6ZWD4Ja7556s@cluster0.mgaws4t.mongodb.net/FoodlyApp', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
