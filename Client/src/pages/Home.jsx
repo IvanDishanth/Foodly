@@ -5,7 +5,10 @@ import logo from "../assets/Images/logo.png";
 import plate from "../assets/Images/goldplate.png";
 import food from "../assets/Images/plate2.png"; 
 import About from "./About.jsx";
+import Gateway from "./Gateway.jsx";
 import Service from "./Service.jsx";
+import Video from "./Video.jsx";
+
 
 const FoodyHero = () => {
   return (
@@ -67,7 +70,10 @@ const FoodyHero = () => {
       <div className="absolute bottom-0 w-full h-[45%] bg-[#FAB503] rounded-t-[0%]"></div>
     </div>
     <About />
+    <Video />
     <Service />
+    <Gateway />
+    
     </>
   );
 };
