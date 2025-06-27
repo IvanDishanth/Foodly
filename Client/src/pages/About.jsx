@@ -4,7 +4,7 @@ import bg from "../assets/Images/bg.jpg";
 
 const About = () => {
   return (
-    <div className="bg-[#FAB503] flex flex-col items-center justify-between w-full">
+    <div className="bg-[#FAB503] flex flex-col h-screen items-center justify-between w-full">
       <div className="flex h-[220px] items-center justify-center max-w-6xl gap-6">
         <img
         src={aboutImage}
@@ -21,17 +21,18 @@ const About = () => {
 
 
       <div
-        className="bg-black h-[350px] w-full px-4 md:px-20 lg:px-60 py-10 md:py-20 text-[#FAB503] text-center text-item-center space-y-6 font-medium text-base md:text-lg relative"
+        className="bg-black h-[350px]  w-[1180px] rounded-[10px] px-4 md:px-20 lg:px-60 py-10 md:py-20 text-[#FAB503] text-center text-item-center space-y-6 font-medium text-base md:text-lg relative transform translate-x-[0%] translate-y-[-10%]"
         style={{
           backgroundImage: `url(${bg})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",
           opacity: 0.95,
+    
         }}
       >
         
-          <p className=" transform translate-x-[0%] translate-y-[50%]">
+          <p className=" transform translate-x-[0%] translate-y-[20%]">
             Fudly is your smart dining companion, helping you discover, reserve,
             and enjoy the best restaurants near you.
          

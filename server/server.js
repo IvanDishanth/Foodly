@@ -39,8 +39,17 @@ app.use("/api/Restaurants", authRoutes);
 app.get('/test-env', (req, res) => {
   res.send(process.env.JWT_SECRET || 'JWT not set');
 });
+app.post('/api/signup', (req, res) => {
+  const { name, email, phone, password } = req.body;
+  res.status(201).json({ message: 'Signup successful!' });
+});
 
-// CORS Configuration
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  res.status(200).json({ message: 'Login successful!' });
+});
+
+
 
 
 // MongoDB Connection

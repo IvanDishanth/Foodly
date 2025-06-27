@@ -13,38 +13,41 @@ const LoginForm = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      // POST to your backend login endpoint
-      const res = await api.post('/login', form);
-      // You can store token or user info here if needed
-      // localStorage.setItem('token', res.data.token);
-      setLoading(false);
-      // Redirect to home or dashboard
-      navigate('/');
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        err?.message ||
-        'Login failed. Please try again.'
-      );
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+
+  try {
+    const res = await api.post('/auth/login-user', {
+      email: form.email,
+      password: form.password
+    });
+
+    localStorage.setItem('token', res.data.token); // Save token
+    setLoading(false);
+    navigate('/'); // Redirect after successful login
+  } catch (err) {
+    setError(
+      err?.response?.data?.message ||
+      err?.message ||
+      'Login failed. Please try again.'
+    );
+    setLoading(false);
+  }
+};
+
 
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center text-white"
       style={{ backgroundImage: `url(${bg})` }}
     >
-      <div className="flex w-[500px] h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70">
+      <div className="flex w-[850px] h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70">
         <div className="hidden md:block md:w-1/2 p-8"></div>
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <div className="flex items-center mb-8">
-            <Link to="/" className="text-[#FAB503] text-4xl mr-4 hover:text-gray-300">
+            <Link to="#" onClick={() => navigate(-1)} className="text-[#FAB503] text-4xl mr-4 hover:text-gray-300">
               &#8592;
             </Link>
             <h2 className="text-3xl font-bold text-[#FAB503] uppercase tracking-wider flex-grow text-center pr-10">
@@ -60,7 +63,7 @@ const LoginForm = () => {
               value={form.email}
               onChange={handleChange}
               required
-              className="w-full rounded-[10px] bg-opacity-0 p-3 bg-gray-800 text-white border-b border-[#D9D9D9] focus:outline-none focus:border-yellow-500 placeholder-[#D9D9D9] hover:border-[#FAB503]"
+              className="w-full rounded-[10px] bg-opacity-0 p-3 bg-gray-800 text-blue border-b border-[#D9D9D9] focus:outline-none focus:border-yellow-500 placeholder-[#D9D9D9] hover:border-[#FAB503]"
             />
             <div className="relative">
               <input
@@ -73,7 +76,7 @@ const LoginForm = () => {
                 className="w-full rounded-[10px] bg-opacity-0 p-3 bg-gray-800 text-white border-b border-[#D9D9D9] focus:outline-none focus:border-yellow-500 placeholder-[#D9D9D9] hover:border-[#FAB503]"
               />
               <Link to="/forgot-password" className="absolute right-0 top-1/2 -translate-y-1/4 text-sm text-[#FAB503] hover:underline px-3 py-1">
-                Forgot Password?
+                
               </Link>
             </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import bg from '../assets/Images/bg3.jpeg'; 
 import api from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 
 const SignUpForm = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
@@ -8,40 +9,53 @@ const SignUpForm = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      await api.post('/signup', form);
-      setSuccess('Signup successful! You can now log in.');
-      setForm({ name: '', email: '', phone: '', password: '' });
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        err?.message ||
-        'Signup failed. Please try again.'
-      );
-    }
-    setLoading(false);
-  };
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  setSuccess('');
+  try {
+    const response = await api.post('/auth/register', {
+      name: form.name,
+      email: form.email,
+      password: form.password
+    });
+
+    // Optionally save token or redirect
+    localStorage.setItem('token', response.data.token);
+    setSuccess('Signup successful! You are now logged in.');
+    setForm({ name: '', email: '', password: '' });
+
+    // Redirect to dashboard or login
+    // navigate('/dashboard');
+  } catch (err) {
+    setError(
+      err?.response?.data?.message ||
+      err?.message ||
+      'Signup failed. Please try again.'
+    );
+  }
+  setLoading(false);
+};
+
 
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center text-white"
       style={{ backgroundImage: `url(${bg})` }}
     >
-      <div className="flex w-[500px] h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70 hover:shadow-lg">
+      <div className="flex w-[full] h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70 hover:shadow-lg">
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <div className="flex items-center mb-8">
             <button
               className="text-[#FAB503] text-4xl mr-4 hover:text-[#D9D9D9] transform translate-x-[-10%] translate-y-[18%]"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate(-1)}
               type="button"
             >
               &#8592;
@@ -70,15 +84,7 @@ const SignUpForm = () => {
               required
               className="bg-opacity-0 w-full h-[32px] rounded-[10px] p-3 bg-gray-800 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
             />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone number"
-              value={form.phone}
-              onChange={handleChange}
-              required
-              className="bg-opacity-0 w-full h-[32px] rounded-[10px] p-3 bg-gray-800 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
-            />
+
             <input
               type="password"
               name="password"

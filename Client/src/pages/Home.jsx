@@ -8,6 +8,8 @@ import About from "./About.jsx";
 import Gateway from "./Gateway.jsx";
 import Service from "./Service.jsx";
 import Video from "./Video.jsx";
+import Navbar from "../components/Navbar.jsx";
+import Footer from "../components/Footer.jsx";
 
 
 const FoodyHero = () => {
@@ -69,11 +71,12 @@ const FoodyHero = () => {
       {/* Bottom Yellow Background */}
       <div className="absolute bottom-0 w-full h-[45%] bg-[#FAB503] rounded-t-[0%]"></div>
     </div>
+    <Navbar />
     <About />
     <Video />
     <Service />
     <Gateway />
-    
+    <Footer />
     </>
   );
 };
