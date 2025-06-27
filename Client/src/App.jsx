@@ -12,7 +12,7 @@ import Uprofile from "./pages/User/Userprofile.jsx";
 import UNavpar from "./pages/User/UNavpar.jsx";
 import Footer from "./components/Footer.jsx";
 import RDashboard from "./pages/Restaurant/RestaurantDashboard.jsx";
-
+import RestaurantDetails from "./pages/User/RestaurantDetails.jsx"; 
 
 
 
@@ -35,6 +35,7 @@ function App() {
         <Route path="/UNavpar" element={<UNavpar />} />
         <Route path="/Footer" element={<Footer />} />
         <Route path="/restaurantDashboard" element={<RDashboard />} />
+         <Route path="/restaurant" element={<RestaurantDetails />} />
       </Routes>
     </>
   );

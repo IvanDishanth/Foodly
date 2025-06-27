@@ -1,9 +1,8 @@
-// src/pages/RestaurantDetails.jsx
 import React, { useState } from 'react';
-import BookingModal from '../components/BookingModal'; // Booking modal component
-import TableDetails from '../components/TableDetails'; // Component to show table details
-import FoodDetails from '../components/FoodDetails';   // Component to show food details
-import MenuDetails from '../components/MenuDetails';   // Component to show menu details
+import BookingModal from './BookingModal'; // Booking modal component
+import TableDetails from './TableDetails'; // Component to show table details
+import FoodDetails from './FoodDetails';   // Component to show food details
+import MenuDetails from './MenuDetails';   // Component to show menu details
 
 function RestaurantDetails() {
   const [showBookingModal, setShowBookingModal] = useState(false);
