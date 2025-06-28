@@ -16,8 +16,8 @@ const About = () => {
             <span className="text-[#FAB503]">Ab</span>
             <span className="text-black">out</span>
           </h2>
-        <div className="w-[520px] h-[3px] h-1 bg-black mt- rounded-full transform translate-x-[-75%] translate-y-[-4230%]" />
-        <div className="w-[470px] h-[3px] h-1 bg-black mt- rounded-full transform translate-x-[86%] translate-y-[-4330%]" />
+        <div className="w-[520px] h-[3px] h-1 bg-black mt- rounded-full transform translate-x-[-75%] translate-y-[-4370%]" />
+        <div className="w-[470px] h-[3px] h-1 bg-black mt- rounded-full transform translate-x-[84%] translate-y-[-4730%]" />
 
 
       <div

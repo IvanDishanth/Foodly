@@ -18,7 +18,7 @@ const SignUpForm = () => {
   const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
-  setError('');
+  setError(''); 
   setSuccess('');
   try {
     const response = await api.post('/auth/register', {

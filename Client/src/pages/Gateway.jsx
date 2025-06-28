@@ -65,7 +65,7 @@ const UserZone = () => {
       </a>
 
       <a
-      href="/restaurantDashboard"
+      href="/RestaurantAdminDashboard"
       className="bg-black rounded-xl p-6 w-64 text-center shadow-md cursor-pointer hover:scale-105 transition"
       style={{
       backgroundImage: `url(${pig})`,

@@ -8,11 +8,10 @@ import LogIn from "./pages/Login.jsx";
 import Service from "./pages/Service.jsx";
 import Video from "./pages/Video.jsx";
 import UserDashboard from "./pages/User/UserDashboard.jsx";
-import Uprofile from "./pages/User/Userprofile.jsx";
-import UNavpar from "./pages/User/UNavpar.jsx";
 import Footer from "./components/Footer.jsx";
-import RDashboard from "./pages/Restaurant/RestaurantDashboard.jsx";
-import RestaurantDetails from "./pages/User/RestaurantDetails.jsx"; 
+import RDashboard from "./pages/Restaurant/RestaurantAdminDashboard.jsx";
+import RestaurantDetails from "./pages/User/RestaurantDetailsPage.jsx"; 
+import UserProfile from "./pages/User/UserProfile.jsx";
 
 
 
@@ -31,11 +30,10 @@ function App() {
         <Route path="/login" element={<LogIn />} />
         <Route path="/Video" element={<Video />} />
         <Route path="/UserDashboard" element={<UserDashboard />} />
-        <Route path="/Uprofile" element={<Uprofile />} />
-        <Route path="/UNavpar" element={<UNavpar />} />
+        <Route path="/UserProfile" element={<UserProfile />} />
         <Route path="/Footer" element={<Footer />} />
-        <Route path="/restaurantDashboard" element={<RDashboard />} />
-         <Route path="/restaurant" element={<RestaurantDetails />} />
+        <Route path="/RestaurantAdminDashboard" element={<RDashboard />} />
+         <Route path="/RestaurantDetails" element={<RestaurantDetails />} />
       </Routes>
     </>
   );
