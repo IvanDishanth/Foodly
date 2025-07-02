@@ -1,4 +1,6 @@
-// src/components/RestaurantPaymentToAdminModal.jsx
+// src/components/RestaurantPaymentToAdminModal.jsx (Confirmed No Firebase)
+// This component operates purely on local state and props,
+// with no direct Firebase integration.
 import React, { useState } from 'react';
 
 function RestaurantPaymentToAdminModal({ onClose, onPaymentSubmit }) {
@@ -10,9 +12,11 @@ function RestaurantPaymentToAdminModal({ onClose, onPaymentSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!amount || !transactionRef || !bankName || !paymentMethod) {
-      alert('Please fill all required fields.'); // Use custom modal
+      // In a real application, replace this with a custom, non-alert modal/message
+      alert('Please fill all required fields.');
       return;
     }
+    // Call the onPaymentSubmit prop with the collected data
     onPaymentSubmit({
       amount: parseFloat(amount),
       transactionRef,

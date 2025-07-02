@@ -20,11 +20,11 @@ const About = () => {
           }}
         >
           <div className="flex flex-row space-x-24  mb-6 transform translate-x-[0%] translate-y-[35%]">
-            <div className="bg-[#D9D9D9] rounded-[10px] flex flex-col h-[200px] shadow-[0_3px_40px_rgba(250,181,3,0.1)] items-center justify-between w-[200px]"></div>
-            <div className="bg-[#D9D9D9] rounded-[10px] flex flex-col h-[200px] shadow-[0_3px_40px_rgba(250,181,3,0.1)] items-center justify-between w-[200px]"></div>
-            <div className="bg-[#D9D9D9] rounded-[10px] flex flex-col h-[200px] shadow-[0_3px_40px_rgba(250,181,3,0.1)] items-center justify-between w-[200px]"></div>
+            <div className="bg-[#FAB503] rounded-[10px] flex flex-col h-[200px] shadow-[0_3px_40px_rgba(250,181,3,0.1)] items-center justify-between w-[200px]"></div>
+            <div className="bg-[#FAB503] rounded-[10px] flex flex-col h-[200px] shadow-[0_3px_40px_rgba(250,181,3,0.1)] items-center justify-between w-[200px]"></div>
+            <div className="bg-[#FAB503] rounded-[10px] flex flex-col h-[200px] shadow-[0_3px_40px_rgba(250,181,3,0.1)] items-center justify-between w-[200px]"></div>
           </div>
-          <div className="w-[950px] h-[1.5px] h-1 bg-yellow-500 mt- rounded-full transform translate-x-[-20%] translate-y-[9700%]" />
+          <div className="w-[950px] h-[2px] h-1 bg-[#FAB503] mt- rounded-full transform translate-x-[-20%] translate-y-[7300%]" />
           <img
             src={k3}
             alt="Plate"

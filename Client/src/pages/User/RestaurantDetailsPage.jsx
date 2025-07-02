@@ -1,200 +1,165 @@
-// src/pages/User/RestaurantDetailsPage.jsx
-import React, { useState, useEffect } from 'react';
+// src/pages/RestaurantDetailsPage.jsx
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from "../../context/AuthContext.jsx";
-import { doc, getDoc } from 'firebase/firestore';
-import TableDisplay from "./TableDisplay.jsx"; // User-view of tables
-import FoodDisplay from "./FoodDisplay.jsx";   // User-view of food
-import BookingFormModal from "./BookingFormModal.jsx"; // User booking modal
+import FoodDisplay from "./FoodDisplay.jsx";
+import TableDisplay from "./TableDisplay.jsx";
+import BookingFormModal from "./BookingFormModal.jsx";
+import Footer from '../../components/Footer';
 
 function RestaurantDetailsPage() {
-  const { id } = useParams(); // Get restaurant ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser, userId, db, auth } = useAuth(); // Access auth and Firestore
-
-  const [restaurant, setRestaurant] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('Table'); // 'Table', 'Food', 'Booking'
-
+  const [activeTab, setActiveTab] = useState('Details');
   const [showBookingModal, setShowBookingModal] = useState(false);
 
-  // Fetch restaurant details from Firestore
-  useEffect(() => {
-    if (!db || !id) return;
-
-    const fetchRestaurant = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        // Fetch from the public collection where restaurant data is stored by admin
-        const restaurantDocRef = doc(db, 'artifacts', auth.currentUser?.uid || 'anonymous', 'public', 'restaurants', id);
-        const docSnap = await getDoc(restaurantDocRef);
-
-        if (docSnap.exists()) {
-          setRestaurant({ id: docSnap.id, ...docSnap.data() });
-        } else {
-          setError('Restaurant not found.');
-        }
-      } catch (e) {
-        console.error("Error fetching restaurant details:", e);
-        setError('Failed to load restaurant details.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRestaurant();
-  }, [db, id, auth.currentUser]);
-
-
-  const handleBooking = (bookingData) => {
-    if (!currentUser) {
-      alert('Please log in to make a booking.'); // Use custom modal
-      navigate('/login'); // Redirect to login page
-      return;
-    }
-
-    // Process booking (send to Firestore)
-    console.log("Booking request:", bookingData);
-    // You would save this to a 'bookings' collection in Firestore.
-    // The admin dashboard would listen to this collection for new notifications.
-    try {
-      // Example: Save booking to a 'bookings' collection
-      // doc(db, 'artifacts', appId, 'bookings', booking.id) - this should be a shared collection
-      // setDoc(doc(db, 'bookings', `booking_${Date.now()}`), {
-      //   restaurantId: restaurant.id,
-      //   restaurantName: restaurant.name,
-      //   userId: userId,
-      //   userName: currentUser.displayName || currentUser.email,
-      //   ...bookingData,
-      //   status: 'Pending', // Initial status
-      //   timestamp: new Date().toISOString()
-      // });
-      alert('Booking submitted successfully! Awaiting restaurant confirmation.'); // Use custom modal
-      setShowBookingModal(false);
-    } catch (e) {
-      console.error("Error submitting booking:", e);
-      alert('Failed to submit booking. Please try again.'); // Use custom modal
-    }
+  // Mock restaurant data - in a real app, this would come from an API
+  const restaurant = {
+    id: 1,
+    name: 'Sky High Sips',
+    description: 'A rooftop restaurant with panoramic views of the city, specializing in international cuisine and craft cocktails.',
+    cuisine: 'International',
+    district: 'Colombo',
+    address: '123 High Street, Colombo 01',
+    phone: '0112345678',
+    isOpen: true,
+    openingHours: '10:00 AM - 11:00 PM',
+    profilePic: 'https://placehold.co/400x300/FFD700/000000?text=Sky+High+Sips',
+    bannerImage: 'https://placehold.co/1200x400/888888/FFFFFF?text=Sky+High+Sips+Banner',
+    rating: 4.5,
+    tables: [
+      { id: 1, name: 'Window Table', capacity: 4, isAvailable: true, description: 'Beautiful city view' },
+      { id: 2, name: 'Booth', capacity: 6, isAvailable: false, description: 'Private booth' },
+      { id: 3, name: 'Patio Table', capacity: 2, isAvailable: true, description: 'Outdoor seating' },
+    ],
+    foodItems: [
+      { id: 1, name: 'Biryani Special', price: 15.99, description: 'Fragrant basmati rice with mixed meats and spices', isAvailable: true, image: 'https://placehold.co/150x100/FFD700/000000?text=Biryani' },
+      { id: 2, name: 'Chicken Curry', price: 12.50, description: 'Traditional Sri Lankan chicken curry with rice', isAvailable: true, image: 'https://placehold.co/150x100/FF4500/FFFFFF?text=Curry' },
+      { id: 3, name: 'Vegetable Dosa', price: 8.00, description: 'South Indian crispy crepe with vegetable filling', isAvailable: false, image: 'https://placehold.co/150x100/32CD32/FFFFFF?text=Dosa' },
+    ]
   };
 
-  const renderContent = () => {
-    if (!restaurant) return null; // Don't render content if restaurant data isn't loaded
-
-    switch (activeTab) {
-      case 'Table':
-        return <TableDisplay restaurantId={restaurant.id} />; // Pass restaurant ID to fetch its tables
-      case 'Food':
-        return <FoodDisplay restaurantId={restaurant.id} />; // Pass restaurant ID to fetch its food
-      case 'Booking':
-        return (
-          <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[200px] flex items-center justify-center">
-            <button
-              onClick={() => setShowBookingModal(true)}
-              className="px-8 py-4 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
-            >
-              Book a Table Now
-            </button>
-          </div>
-        );
-      default:
-        return null;
-    }
+  const handleBookingSubmit = (bookingData) => {
+    console.log('Booking submitted:', bookingData);
+    alert('Booking request sent successfully! The restaurant will confirm your reservation shortly.');
+    setShowBookingModal(false);
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <p>Loading restaurant details...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-red-400">
-        <p>{error}</p>
-      </div>
-    );
-  }
-
-  if (!restaurant) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-gray-400">
-        <p>Restaurant data not available.</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden">
-      {/* Top Banner Section */}
-      <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-8">
-        <img
-          src={restaurant.bannerImage || 'https://placehold.co/1200x400/333333/FFFFFF?text=Restaurant+Banner'}
-          alt={restaurant.name}
+    <div className="min-h-screen bg-gray-100">
+      {/* Banner */}
+      <div className="relative h-64 w-full">
+        <img 
+          src={restaurant.bannerImage} 
+          alt={restaurant.name} 
           className="w-full h-full object-cover"
-          onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/1200x400/333333/FFFFFF?text=Restaurant+Banner'; }}
         />
-        {/* Small circular profile picture on top of the banner */}
-        <div className="absolute -bottom-10 left-4 sm:left-8 md:left-12 lg:left-16 w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-yellow-500 shadow-xl">
-          <img
-            src={restaurant.profilePicture || 'https://placehold.co/128x128/555555/FFFFFF?text=Logo'}
-            alt={restaurant.name + " Profile"}
-            className="w-full h-full object-cover"
-            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/128x128/555555/FFFFFF?text=Logo'; }}
-          />
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <h1 className="text-4xl font-bold text-white">{restaurant.name}</h1>
         </div>
-        {/* Restaurant Name on banner */}
-        <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-yellow-500 text-center drop-shadow-lg font-display">
-          {restaurant.name}
-        </h1>
-        {/* Open/Closed Tick/Cross */}
-        {restaurant.isOpen ? (
-          <div className="absolute top-4 right-4 bg-green-500 rounded-full p-2 shadow-md">
-            <svg className="w-6 h-6 text-white fill-current" viewBox="0 0 20 20"><path d="M10 .5C4.761 0 0 4.761 0 10s4.761 10 10 10 10-4.761 10-10S15.239 0 10 .5zM9 15L4 10l1.41-1.41L9 12.17l5.59-5.59L16 8l-7 7z"/></svg>
-          </div>
-        ) : (
-          <div className="absolute top-4 right-4 bg-red-500 rounded-full p-2 shadow-md">
-            <svg className="w-6 h-6 text-white fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/></svg>
-          </div>
-        )}
       </div>
 
-      {/* Main Content Wrapper */}
-      <div className="container mx-auto px-4 py-8 mt-10">
-        {/* Navigation Tabs (Table, Food, Booking) */}
-        <div className="flex space-x-6 sm:space-x-8 md:space-x-12 justify-center mb-8">
-          {['Table', 'Food', 'Booking'].map((tab) => (
-            <button
-              key={tab}
-              className={`text-lg sm:text-xl font-medium pb-2 transition-colors duration-200 ${
-                activeTab === tab
-                  ? 'text-yellow-500 border-b-2 border-yellow-500'
-                  : 'text-gray-400 hover:text-gray-200'
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8 -mt-16 relative z-10">
+        <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+          {/* Restaurant Header */}
+          <div className="flex flex-col md:flex-row p-6">
+            <div className="md:w-1/4 flex justify-center md:justify-start">
+              <img 
+                src={restaurant.profilePic} 
+                alt={restaurant.name} 
+                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+              />
+            </div>
+            <div className="md:w-3/4 mt-4 md:mt-0 md:pl-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">{restaurant.name}</h2>
+                  <div className="flex items-center mt-1">
+                    <span className="text-yellow-500">★</span>
+                    <span className="ml-1 text-gray-700">{restaurant.rating}</span>
+                    <span className="mx-2 text-gray-300">•</span>
+                    <span className="text-gray-600">{restaurant.cuisine}</span>
+                    <span className="mx-2 text-gray-300">•</span>
+                    <span className="text-gray-600">{restaurant.district}</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowBookingModal(true)}
+                  className="mt-4 md:mt-0 px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md shadow-md transition-colors"
+                >
+                  Book Now
+                </button>
+              </div>
+              <p className="mt-3 text-gray-600">{restaurant.description}</p>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="border-b border-gray-200">
+            <nav className="flex -mb-px">
+              {['Details', 'Food', 'Tables'].map((tab) => (
+                <button
+                  key={tab}
+                  className={`px-6 py-3 text-sm font-medium ${activeTab === tab ? 'border-b-2 border-yellow-500 text-yellow-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-6">
+            {activeTab === 'Details' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">About</h3>
+                  <p className="text-gray-600 mb-6">{restaurant.description}</p>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">ADDRESS</h4>
+                      <p className="text-gray-800">{restaurant.address}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">PHONE</h4>
+                      <p className="text-gray-800">{restaurant.phone}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">OPENING HOURS</h4>
+                      <p className="text-gray-800">{restaurant.openingHours}</p>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1 ${restaurant.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {restaurant.isOpen ? 'Open Now' : 'Closed'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Location</h3>
+                  <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
+                    <p className="text-gray-500">Map would be displayed here</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Food' && <FoodDisplay foods={restaurant.foodItems} />}
+            {activeTab === 'Tables' && <TableDisplay tables={restaurant.tables} />}
+          </div>
         </div>
-
-        {/* Dynamic Content Section based on activeTab */}
-        <section className="mt-8">
-          {renderContent()}
-        </section>
-
-        {/* Booking Form Modal */}
-        {showBookingModal && (
-          <BookingFormModal
-            onClose={() => setShowBookingModal(false)}
-            onBook={handleBooking}
-            restaurantName={restaurant.name}
-          />
-        )}
       </div>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <BookingFormModal 
+          restaurant={restaurant} 
+          onClose={() => setShowBookingModal(false)} 
+          onSubmit={handleBookingSubmit}
+        />
+      )}
+
+      <Footer />
     </div>
   );
 }

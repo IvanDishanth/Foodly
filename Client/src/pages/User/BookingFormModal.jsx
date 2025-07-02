@@ -1,185 +1,99 @@
-// src/components/BookingFormModal.jsx
-import React, { useState, useEffect } from 'react';
-import { useAuth } from "../../context/AuthContext.jsx";
-import { collection, addDoc } from 'firebase/firestore'; // For adding booking
+import React, { useState } from 'react';
+import axios from 'axios';
 
-function BookingFormModal({ onClose, onBook, restaurantName }) {
-  const { currentUser, userId, db } = useAuth();
-  const [bookingData, setBookingData] = useState({
-    name: currentUser?.displayName || '',
-    email: currentUser?.email || '',
-    phone: '', // User's phone number
-    date: '',
-    time: '',
-    guests: 1,
-    specialRequests: '',
-  });
+function BookingFormModal({ restaurant, onClose }) {
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [guests, setGuests] = useState(2);
+  const [specialRequests, setSpecialRequests] = useState('');
 
-  // Pre-fill phone if available from user data in AuthContext or Firestore
-  useEffect(() => {
-    if (currentUser && !bookingData.phone) {
-      // If phone number is stored in Firestore, fetch it
-      const fetchUserPhone = async () => {
-        if (userId && db) {
-          const userDocRef = doc(db, 'artifacts', appId, 'users', userId, 'profile', 'data');
-          const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists() && docSnap.data().phoneNumber) {
-            setBookingData(prev => ({ ...prev, phone: docSnap.data().phoneNumber }));
-          }
-        }
-      };
-      fetchUserPhone();
-    }
-  }, [currentUser, userId, db, bookingData.phone]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setBookingData(prev => ({ ...prev, [name]: value }));
-  };
-
+  // Make handleSubmit async so you can use await
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!db || !currentUser) {
-      alert('You must be logged in to make a booking.');
-      return;
-    }
-    // Basic validation
-    if (!bookingData.name || !bookingData.email || !bookingData.phone || !bookingData.date || !bookingData.time || !bookingData.guests) {
-      alert('Please fill all required fields.');
-      return;
-    }
-
+    console.log(restaurant);
     try {
-      // Save booking to a shared 'bookings' collection
-      // This collection needs specific Firestore Security Rules to allow writes by users
-      // and reads by admins/restaurants.
-      const bookingsCollectionRef = collection(db, 'artifacts', appId, 'public', 'bookings'); // Shared public bookings
-      await addDoc(bookingsCollectionRef, {
-        restaurantId: window.location.pathname.split('/').pop(), // Get restaurant ID from URL
-        restaurantName: restaurantName,
-        userId: userId,
-        userName: bookingData.name,
-        userEmail: bookingData.email,
-        userPhone: bookingData.phone,
-        date: bookingData.date,
-        time: bookingData.time,
-        guests: parseInt(bookingData.guests),
-        specialRequests: bookingData.specialRequests,
-        status: 'Pending', // Initial status for admin
-        timestamp: new Date().toISOString(),
+      await axios.post('http://localhost:5000/api/bookings', {
+        restaurantId: "66a1b2c3d4e5f6a7b8c9d0e1",
+        restaurantName: "Sky High Sips",
+        date,
+        time,
+        guests,
+        specialRequests,
       });
-      onBook(bookingData); // Call the onBook callback in parent (RestaurantDetailsPage)
-      onClose(); // Close the modal
-    } catch (e) {
-      console.error("Error adding document: ", e);
-      alert("Failed to make booking. Please try again.");
+      alert('Booking confirmed!');
+      onClose(); // Close modal on success
+    } catch (err) {
+      alert('Booking failed: ' + (err?.response?.data?.message || err.message));
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-lg p-6 sm:p-8 w-full max-w-md shadow-xl border border-gray-700 relative">
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
-        <h3 className="text-xl font-bold text-yellow-400 mb-4 text-center">Book Table at {restaurantName}</h3>
-
+      <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md relative">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl"
+        >
+          &times;
+        </button>
+        
+        <h2 className="text-2xl font-bold text-yellow-400 mb-4">Book a Table at {restaurant.name}</h2>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-gray-300 text-sm font-medium mb-1">Your Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={bookingData.name}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-gray-300 text-sm font-medium mb-1">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={bookingData.email}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="phone" className="block text-gray-300 text-sm font-medium mb-1">Phone Number</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={bookingData.phone}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="date" className="block text-gray-300 text-sm font-medium mb-1">Date</label>
+            <label className="block text-gray-400 mb-1">Date</label>
             <input
               type="date"
-              id="date"
-              name="date"
-              value={bookingData.date}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
               required
+              min={new Date().toISOString().split('T')[0]}
             />
           </div>
           <div>
-            <label htmlFor="time" className="block text-gray-300 text-sm font-medium mb-1">Time</label>
+            <label className="block text-gray-400 mb-1">Time</label>
             <input
               type="time"
-              id="time"
-              name="time"
-              value={bookingData.time}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
               required
             />
           </div>
           <div>
-            <label htmlFor="guests" className="block text-gray-300 text-sm font-medium mb-1">Number of Guests</label>
-            <input
-              type="number"
-              id="guests"
-              name="guests"
-              min="1"
-              value={bookingData.guests}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
+            <label className="block text-gray-400 mb-1">Number of Guests</label>
+            <select
+              value={guests}
+              onChange={(e) => setGuests(parseInt(e.target.value))}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
               required
-            />
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                <option key={num} value={num}>{num} {num === 1 ? 'person' : 'people'}</option>
+              ))}
+            </select>
           </div>
           <div>
-            <label htmlFor="specialRequests" className="block text-gray-300 text-sm font-medium mb-1">Special Requests (Optional)</label>
+            <label className="block text-gray-400 mb-1">Special Requests (Optional)</label>
             <textarea
-              id="specialRequests"
-              name="specialRequests"
+              value={specialRequests}
+              onChange={(e) => setSpecialRequests(e.target.value)}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
               rows="3"
-              value={bookingData.specialRequests}
-              onChange={handleChange}
-              className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none resize-y"
-              placeholder="e.g., High chair needed, wheelchair access"
-            ></textarea>
+            />
           </div>
-
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
-              className="px-5 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors"
               onClick={onClose}
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md transition-colors"
+              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md"
             >
               Confirm Booking
             </button>

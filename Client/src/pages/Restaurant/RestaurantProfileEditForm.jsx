@@ -1,20 +1,15 @@
-// src/components/RestaurantProfileEditForm.jsx
+// src/components/RestaurantProfileEditForm.jsx (No Firebase)
 import React, { useState, useEffect } from 'react';
-
-// This form uses the same design principles as your SignUp form
-// (dark background, central semi-transparent card, yellow accents)
-// Assume a general background is applied via a parent component or global CSS,
-// or you can import a background image here if this component is a standalone page.
-// For a modal, the parent (RestaurantAdminDashboard) provides the main background.
 
 function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
   const [formData, setFormData] = useState({
     restaurantName: '',
-    address: '',
+    address: { street: '', city: '', district: '' }, // Nested address
     ownerName: '',
-    phoneNumber: '',      // Mobile
-    landPhoneNumber: '',  // Landline
+    phoneNumber: '',
+    landPhoneNumber: '',
     registrationNumber: '',
+    cuisineType: '' // Added cuisineType to form data
   });
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState(initialData.profilePicture || "https://placehold.co/100x100/555555/FFFFFF?text=Logo");
@@ -24,20 +19,31 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
     if (initialData) {
       setFormData({
         restaurantName: initialData.name || '',
-        address: initialData.address || '',
+        address: initialData.address || { street: '', city: '', district: '' },
         ownerName: initialData.ownerName || '',
         phoneNumber: initialData.phoneNumber || '',
         landPhoneNumber: initialData.landPhoneNumber || '',
         registrationNumber: initialData.registrationNumber || '',
+        cuisineType: initialData.cuisineType || '' // Set initial cuisine type
       });
-      // Ensure profile picture preview is set from initialData if available
       setProfilePicturePreview(initialData.profilePicture || "https://placehold.co/100x100/555555/FFFFFF?text=Logo");
     }
   }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name.startsWith('address.')) {
+      const addressField = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [addressField]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -50,7 +56,6 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Pass back updated form data and potentially the new file
     onSave({
       ...formData,
       profilePictureFile, // Send the actual file object
@@ -59,11 +64,8 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
   };
 
   return (
-    // Modal Overlay
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      {/* Modal Content - Replicates SignUp form's central card design */}
       <div className="relative bg-gray-900 bg-opacity-90 rounded-[32px] p-6 sm:p-8 md:p-10 lg:p-12 shadow-xl w-full max-w-md mx-4 sm:mx-auto border border-gray-700">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-bold"
@@ -72,14 +74,12 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
           &times;
         </button>
 
-        {/* Header Section */}
         <div className="flex items-center mb-8">
           <h2 className="text-3xl font-bold text-[#FAB503] uppercase tracking-wider text-center flex-grow">
             Edit Restaurant Details
           </h2>
         </div>
 
-        {/* Profile Picture Upload Section */}
         <div className="flex flex-col items-center mb-6">
           <img
             src={profilePicturePreview}
@@ -95,13 +95,12 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
           <input
             type="file"
             id="profilePicture"
-            className="hidden" // Hide the default file input
-            accept="image/*" // Accept all image types
+            className="hidden"
+            accept="image/*"
             onChange={handleFileChange}
           />
         </div>
 
-        {/* Form Fields - Styled like SignUpForm */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
@@ -114,9 +113,27 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
           />
           <input
             type="text"
-            name="address"
-            placeholder="Address"
-            value={formData.address}
+            name="address.street"
+            placeholder="Street Address"
+            value={formData.address.street}
+            onChange={handleChange}
+            required
+            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+          />
+          <input
+            type="text"
+            name="address.city"
+            placeholder="City"
+            value={formData.address.city}
+            onChange={handleChange}
+            required
+            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+          />
+          <input
+            type="text"
+            name="address.district"
+            placeholder="District"
+            value={formData.address.district}
             onChange={handleChange}
             required
             className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
@@ -156,8 +173,16 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             required
             className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
+           <input
+            type="text"
+            name="cuisineType"
+            placeholder="Cuisine Type (e.g., Indian, Sri Lankan)"
+            value={formData.cuisineType}
+            onChange={handleChange}
+            required
+            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+          />
 
-          {/* Save Details Button */}
           <button
             type="submit"
             className="w-full h-[40px] rounded-[30px] py-0 mt-5 bg-[#FAB503] text-[#D9D9D9] font-bold text-lg hover:bg-[#FAB503] transition duration-300 hover:text-black hover:shadow-lg hover:scale-105 transform active:scale-95"
@@ -166,7 +191,6 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
           </button>
         </form>
 
-        {/* OR Separator and Add Photos button */}
         <div className="flex items-center my-6">
           <hr className="flex-grow border-[#D9D9D9]" />
           <span className="mx-4 text-[#D9D9D9]">OR</span>
@@ -181,7 +205,6 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
           <span>Add More Restaurant Photos</span>
         </button>
 
-        {/* Footer Link */}
         <p className="mt-8 text-center text-[#D9D9D9] text-sm">
           Return to dashboard?{' '}
           <button

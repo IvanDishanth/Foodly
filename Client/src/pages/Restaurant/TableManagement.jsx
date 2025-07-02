@@ -1,46 +1,39 @@
-// src/components/TableManagement.jsx
+// src/components/TableManagement.jsx (No Firebase)
 import React, { useState, useEffect } from 'react';
 
-function TableManagement() {
-  const [tables, setTables] = useState([
-    { id: 1, name: 'Table 1 (Window)', capacity: 4, isAvailable: true, image: 'https://placehold.co/150x100/4CAF50/FFFFFF?text=T1' },
-    { id: 2, name: 'Table 2 (Booth)', capacity: 6, isAvailable: false, image: 'https://placehold.co/150x100/FF0000/FFFFFF?text=T2' },
-    { id: 3, name: 'Patio Table 1', capacity: 2, isAvailable: true, image: 'https://placehold.co/150x100/4CAF50/FFFFFF?text=T3' },
-  ]);
+// Tables are now passed as props from parent (RestaurantAdminDashboard)
+function TableManagement({ tables, setTables }) {
   const [showAddTableModal, setShowAddTableModal] = useState(false);
-  const [editingTable, setEditingTable] = useState(null); // Table being edited
+  const [editingTable, setEditingTable] = useState(null);
 
   const handleToggleAvailability = (id) => {
     setTables(tables.map(table =>
       table.id === id ? { ...table, isAvailable: !table.isAvailable } : table
     ));
-    // In a real app, update this on backend
-    console.log(`Table ${id} availability toggled`);
+    console.log(`Table ${id} availability toggled (Simulated).`);
   };
 
   const handleAddOrUpdateTable = (newTableData) => {
     if (editingTable) {
-      // Update existing table
       setTables(tables.map(table =>
         table.id === editingTable.id ? { ...table, ...newTableData, image: newTableData.imageFile ? URL.createObjectURL(newTableData.imageFile) : table.image } : table
       ));
-      console.log("Updated Table:", newTableData);
+      console.log("Updated Table (Simulated):", newTableData);
     } else {
-      // Add new table
-      const newId = Math.max(...tables.map(t => t.id), 0) + 1;
+      const newId = Math.max(...tables.map(t => t.id), 0) + 1; // Generate unique ID
       setTables([...tables, { ...newTableData, id: newId, isAvailable: true, image: newTableData.imageFile ? URL.createObjectURL(newTableData.imageFile) : 'https://placehold.co/150x100/888888/FFFFFF?text=New+Table' }]);
-      console.log("Added New Table:", newTableData);
+      console.log("Added New Table (Simulated):", newTableData);
     }
     setEditingTable(null);
     setShowAddTableModal(false);
-    // Send to backend
+    alert('Table data saved! (Simulated, no persistence)');
   };
 
   const handleDeleteTable = (id) => {
-    if (window.confirm("Are you sure you want to delete this table?")) { // Use custom modal in real app
+    if (window.confirm("Are you sure you want to delete this table? (Simulated)")) { // Use custom modal in real app
       setTables(tables.filter(table => table.id !== id));
-      console.log(`Table ${id} deleted`);
-      // Delete from backend
+      console.log(`Table ${id} deleted (Simulated).`);
+      alert('Table deleted! (Simulated, no persistence)');
     }
   };
 
@@ -100,7 +93,7 @@ function TableManagement() {
   );
 }
 
-// Sub-component for adding/editing a table (Modal)
+// Sub-component for adding/editing a table (Modal) - No Firebase changes needed here.
 function TableFormModal({ onClose, onSave, initialData }) {
   const [name, setName] = useState(initialData?.name || '');
   const [capacity, setCapacity] = useState(initialData?.capacity || '');
@@ -117,7 +110,7 @@ function TableFormModal({ onClose, onSave, initialData }) {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImageFile(file);
-      setImagePreview(URL.createObjectURL(file)); // Create URL for immediate preview
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 

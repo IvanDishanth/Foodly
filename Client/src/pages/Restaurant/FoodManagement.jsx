@@ -1,12 +1,8 @@
-// src/components/FoodManagement.jsx
-import React, { useState, useEffect } from 'react'; // Added useEffect for image preview
+// src/components/FoodManagement.jsx (No Firebase)
+import React, { useState, useEffect } from 'react';
 
-function FoodManagement() {
-  const [foodItems, setFoodItems] = useState([
-    { id: 1, name: 'Biryani Special', price: 15.99, isAvailable: true, image: 'https://placehold.co/150x100/FFD700/000000?text=Biryani' },
-    { id: 2, name: 'Chicken Curry', price: 12.50, isAvailable: true, image: 'https://placehold.co/150x100/FF4500/FFFFFF?text=Curry' },
-    { id: 3, name: 'Vegetable Dosa', price: 8.00, isAvailable: false, image: 'https://placehold.co/150x100/32CD32/FFFFFF?text=Dosa' },
-  ]);
+// Food items are now passed as props from parent (RestaurantAdminDashboard)
+function FoodManagement({ foodItems, setFoodItems }) {
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [editingFood, setEditingFood] = useState(null);
 
@@ -14,7 +10,7 @@ function FoodManagement() {
     setFoodItems(foodItems.map(item =>
       item.id === id ? { ...item, isAvailable: !item.isAvailable } : item
     ));
-    console.log(`Food item ${id} availability toggled`);
+    console.log(`Food item ${id} availability toggled (Simulated).`);
   };
 
   const handleAddOrUpdateFood = (newFoodData) => {
@@ -22,20 +18,22 @@ function FoodManagement() {
       setFoodItems(foodItems.map(item =>
         item.id === editingFood.id ? { ...item, ...newFoodData, image: newFoodData.imageFile ? URL.createObjectURL(newFoodData.imageFile) : item.image } : item
       ));
-      console.log("Updated Food Item:", newFoodData);
+      console.log("Updated Food Item (Simulated):", newFoodData);
     } else {
-      const newId = Math.max(...foodItems.map(i => i.id), 0) + 1;
+      const newId = Math.max(...foodItems.map(i => i.id), 0) + 1; // Generate unique ID
       setFoodItems([...foodItems, { ...newFoodData, id: newId, isAvailable: true, image: newFoodData.imageFile ? URL.createObjectURL(newFoodData.imageFile) : 'https://placehold.co/150x100/888888/FFFFFF?text=New+Food' }]);
-      console.log("Added New Food Item:", newFoodData);
+      console.log("Added New Food Item (Simulated):", newFoodData);
     }
     setEditingFood(null);
     setShowAddFoodModal(false);
+    alert('Food item data saved! (Simulated, no persistence)');
   };
 
   const handleDeleteFood = (id) => {
-    if (window.confirm("Are you sure you want to delete this food item?")) {
+    if (window.confirm("Are you sure you want to delete this food item? (Simulated)")) { // Use custom modal in real app
       setFoodItems(foodItems.filter(item => item.id !== id));
-      console.log(`Food item ${id} deleted`);
+      console.log(`Food item ${id} deleted (Simulated).`);
+      alert('Food item deleted! (Simulated, no persistence)');
     }
   };
 
@@ -95,7 +93,7 @@ function FoodManagement() {
   );
 }
 
-// Sub-component for adding/editing a food item (Modal)
+// Sub-component for adding/editing a food item (Modal) - No Firebase changes needed here.
 function FoodFormModal({ onClose, onSave, initialData }) {
   const [name, setName] = useState(initialData?.name || '');
   const [price, setPrice] = useState(initialData?.price || '');

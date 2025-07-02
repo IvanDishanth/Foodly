@@ -1,20 +1,14 @@
-import React, { useState, useEffect } from 'react';
+// src/components/UserProfileEditModal.jsx
+import React, { useState } from 'react';
 
-function UserProfileEditModal({ onClose, onSave, initialData }) {
+function UserProfileEditModal({ user, onClose, onSave }) {
   const [formData, setFormData] = useState({
-    name: initialData.name || '',
-    email: initialData.email || '',
-    phoneNumber: initialData.phoneNumber || '',
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    profilePic: user.profilePic
   });
-  const [profilePictureFile, setProfilePictureFile] = useState(null);
-  const [profilePicturePreview, setProfilePicturePreview] = useState(initialData.profilePicture);
-
-  useEffect(() => {
-    // If initialData.profilePicture is not set, use a placeholder
-    if (!initialData.profilePicture) {
-      setProfilePicturePreview("https://placehold.co/100x100/555555/FFFFFF?text=User");
-    }
-  }, [initialData.profilePicture]);
+  const [profilePicPreview, setProfilePicPreview] = useState(user.profilePic);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,99 +18,108 @@ function UserProfileEditModal({ onClose, onSave, initialData }) {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfilePictureFile(file);
-      setProfilePicturePreview(URL.createObjectURL(file)); // Create URL for immediate preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ ...formData, profilePictureFile }); // Pass the file object up
+    onSave({
+      ...formData,
+      profilePic: profilePicPreview
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 bg-opacity-90 rounded-lg p-6 sm:p-8 w-full max-w-md shadow-xl border border-gray-700 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold"
-          aria-label="Close"
-        >
-          &times;
-        </button>
-        <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">Edit Profile</h2>
-
-        {/* Profile Picture Section */}
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={profilePicturePreview}
-            alt="Profile Preview"
-            className="w-28 h-28 rounded-full object-cover mb-3 border-2 border-yellow-500 shadow-md"
-          />
-          <label
-            htmlFor="userProfilePicture"
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-full cursor-pointer transition-colors duration-200"
-          >
-            Change Photo
-          </label>
-          <input
-            type="file"
-            id="userProfilePicture"
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-gray-800">Edit Profile</h3>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center mb-4">
+              <img 
+                src={profilePicPreview} 
+                alt="Profile Preview" 
+                className="w-24 h-24 rounded-full object-cover mb-3 border-2 border-yellow-500"
+              />
+              <label className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 cursor-pointer">
+                Change Photo
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="sr-only">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              placeholder="Name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full pb-2 bg-transparent border-b border-gray-500 text-white focus:border-yellow-500 outline-none placeholder-gray-500"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="email" className="sr-only">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              // Email is usually not directly editable via profile forms if it's the primary auth method
-              // onChange={handleChange} // Uncomment if you want to allow email changes
-              className="w-full pb-2 bg-transparent border-b border-gray-500 text-gray-500 focus:border-yellow-500 outline-none placeholder-gray-500 cursor-not-allowed"
-              disabled // Email often disabled for direct editing
-              readOnly
-            />
-          </div>
-          <div>
-            <label htmlFor="phoneNumber" className="sr-only">Phone Number</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              placeholder="Phone Number"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full pb-2 bg-transparent border-b border-gray-500 text-white focus:border-yellow-500 outline-none placeholder-gray-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-md transition-colors shadow-md mt-6"
-          >
-            Save Details
-          </button>
-        </form>
       </div>
     </div>
   );

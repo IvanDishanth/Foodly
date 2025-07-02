@@ -3,54 +3,51 @@ import Restaurant from '../models/restaurant.model.js';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
-export const register = async (req, res) => {
-  const { name, email, password } = req.body;  // <-- add `name` here
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    const user = await User.create({ name, email, password });
-    const token = generateToken(user._id);
-    res.status(201).json({ token });
+// User Registration
+export const register = async (req, res) => {
+  const { name, email, password, role } = req.body;
+  try {
+    if (role === "admin") {
+      if (!req.user || req.user.role !== "admin") {
+        return res.status(403).json({ message: "Only admins can create admin users" });
+      }
+    }
+    const userExists = await User.findOne({ email });
+    if (userExists) return res.status(400).json({ message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hashedPassword, role });
+    res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-
+// User Login
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user) {
-      console.log('No user found for email:', email);
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
-      console.log('Password mismatch for email:', email);
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    const token = generateToken(user._id);
-    res.json({ token });
+    const token = generateToken(user._id, user.role);
+    res.status(200).json({ token, user: { id: user._id, name: user.name, role: user.role } });
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-
-
+// Restaurant Registration
 export const registerRestaurant = async (req, res) => {
+  const { name, email, password, address, phone, cuisine } = req.body;
   try {
-    const { name, email, password, address, phone, cuisine } = req.body;
-
     const userExists = await User.findOne({ email });
     if (userExists)
       return res.status(400).json({ message: "User already exists" });
@@ -59,10 +56,7 @@ export const registerRestaurant = async (req, res) => {
     if (restaurantExists)
       return res.status(400).json({ message: "Restaurant already exists" });
 
-    // Hash password for User
     const hashedUserPassword = await bcrypt.hash(password, 10);
-
-    // Create user with role partner
     const user = await User.create({
       name,
       email,
@@ -70,10 +64,7 @@ export const registerRestaurant = async (req, res) => {
       role: "partner",
     });
 
-    // Hash password for Restaurant (can be the same as user password or different)
     const hashedRestaurantPassword = await bcrypt.hash(password, 10);
-
-    // Create restaurant with hashed password
     const restaurant = await Restaurant.create({
       name,
       email,
@@ -84,12 +75,7 @@ export const registerRestaurant = async (req, res) => {
       admin: user._id,
     });
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = generateToken(user._id, user.role);
 
     res.status(201).json({
       message: "Restaurant and user registered successfully",
@@ -102,11 +88,10 @@ export const registerRestaurant = async (req, res) => {
   }
 };
 
-
+// Restaurant Login
 export const loginRestaurant = async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
-
     const restaurant = await Restaurant.findOne({ email });
     if (!restaurant)
       return res.status(400).json({ message: "Invalid email or password" });
@@ -115,11 +100,7 @@ export const loginRestaurant = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
-    const token = jwt.sign(
-      { id: restaurant._id, role: "restaurant" },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = generateToken(restaurant._id, "restaurant");
 
     res.status(200).json({
       message: "Restaurant login successful",

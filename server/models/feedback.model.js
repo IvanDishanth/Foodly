@@ -8,8 +8,8 @@ const feedbackSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   role: {
     type: String,
-    enum: ["user"],
-    default: "user"
+    enum: ["User"],
+    default: "User"
   },
 }, {
   timestamps: true,

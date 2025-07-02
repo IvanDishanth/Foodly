@@ -1,48 +1,85 @@
-// src/pages/RestaurantAdminDashboard.jsx
+// src/pages/RestaurantAdminDashboard.jsx (No Firebase)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RestaurantProfileEditForm from "./RestaurantProfileEditForm.jsx";
 import TableManagement from "./TableManagement.jsx";
 import FoodManagement from "./FoodManagement.jsx";
 import BookingManagement from "./BookingManagement.jsx";
-import RestaurantPaymentToAdminModal from "./RestaurantPaymentToAdminModal.jsx"; // New Payment Modal
+import RestaurantPaymentToAdminModal from "./RestaurantPaymentToAdminModal.jsx";
+import Footer from "../../components/Footer.jsx";
+
+// Mock data storage for the admin dashboard (resets on page refresh)
+const mockAdminData = {
+  restaurant: {
+    id: 'adminRest',
+    name: 'Admin Demo Restaurant',
+    bannerImage: '/images/restaurant-banner-admin.jpg', // Placeholder image
+    profilePicture: 'https://placehold.co/100x100/555555/FFFFFF?text=Logo', // Placeholder image
+    isOpen: true,
+    isVerified: true,
+    address: { street: 'Admin Street', city: 'Admin City', district: 'Colombo' },
+    phoneNumber: '0771234567',
+    landPhoneNumber: '0119876543',
+    registrationNumber: 'ADMINREG123',
+    cuisineType: 'International'
+  },
+  tables: [
+    { id: 1, name: 'Table 1 (Window)', capacity: 4, isAvailable: true, image: 'https://placehold.co/150x100/4CAF50/FFFFFF?text=T1' },
+    { id: 2, name: 'Table 2 (Booth)', capacity: 6, isAvailable: false, image: 'https://placehold.co/150x100/FF0000/FFFFFF?text=T2' },
+    { id: 3, name: 'Patio Table 1', capacity: 2, isAvailable: true, image: 'https://placehold.co/150x100/4CAF50/FFFFFF?text=T3' },
+  ],
+  foodItems: [
+    { id: 1, name: 'Biryani Special', price: 15.99, isAvailable: true, image: 'https://placehold.co/150x100/FFD700/000000?text=Biryani' },
+    { id: 2, name: 'Chicken Curry', price: 12.50, isAvailable: true, image: 'https://placehold.co/150x100/FF4500/FFFFFF?text=Curry' },
+    { id: 3, name: 'Vegetable Dosa', price: 8.00, isAvailable: false, image: 'https://placehold.co/150x100/32CD32/FFFFFF?text=Dosa' },
+  ],
+  bookings: [
+    { id: 'book1', userName: 'John Doe', date: '2025-07-01', time: '19:00', guests: 4, status: 'Pending', table: 'Table 2 (Booth)', restaurantId: 'adminRest' },
+    { id: 'book2', userName: 'Jane Smith', date: '2025-07-02', time: '12:30', guests: 2, status: 'Accepted', table: 'Table 1 (Window)', restaurantId: 'adminRest' },
+  ],
+};
 
 function RestaurantAdminDashboard() {
   const navigate = useNavigate();
 
-  // Dummy Restaurant Data (will be fetched from API in real app)
-  const [restaurantData, setRestaurantData] = useState({
-    name: 'Spicy Briyani Hub',
-    bannerImage: '/images/restaurant-banner-admin.jpg',
-    profilePicture: '/images/restaurant-profile.jpg',
-    isOpen: true,
-    isVerified: true, // Assuming admin verification for yellow tick demo
-  });
+  const [restaurantData, setRestaurantData] = useState(mockAdminData.restaurant);
+  const [tables, setTables] = useState(mockAdminData.tables);
+  const [foodItems, setFoodItems] = useState(mockAdminData.foodItems);
+  const [bookings, setBookings] = useState(mockAdminData.bookings);
+
 
   const [activeDashboardTab, setActiveDashboardTab] = useState('Home');
-  const [activeUpdateTab, setActiveUpdateTab] = useState('Table'); // Removed 'Menu' from options
+  const [activeUpdateTab, setActiveUpdateTab] = useState('Table');
 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const [showPaymentToAdminModal, setShowPaymentToAdminModal] = useState(false); // State for new payment modal
+  const [showPaymentToAdminModal, setShowPaymentToAdminModal] = useState(false);
 
   // Handle updates from the edit form (simulated)
   const handleProfileUpdate = (updatedData) => {
     setRestaurantData(prevData => ({
       ...prevData,
       name: updatedData.restaurantName,
-      // Update other fields here based on your form data
-      // For profile picture, update if a new file was provided
-      profilePicture: updatedData.profilePicturePreview || prevData.profilePicture,
+      address: updatedData.address,
+      ownerName: updatedData.ownerName,
+      phoneNumber: updatedData.phoneNumber,
+      landPhoneNumber: updatedData.landPhoneNumber,
+      registrationNumber: updatedData.registrationNumber,
+      profilePicture: updatedData.profilePicturePreview || prevData.profilePicture, // Use preview for immediate update
     }));
     setShowEditProfileModal(false);
-    console.log("Profile updated:", updatedData);
+    console.log("Admin Profile updated:", updatedData);
+    alert('Restaurant profile updated! (Simulated, no persistence)');
   };
 
   const handleAdminPaymentSubmit = (paymentDetails) => {
     console.log("Restaurant paying Superadmin:", paymentDetails);
-    alert('Payment to Superadmin recorded successfully! (Simulated)'); // Use custom modal in real app
+    alert('Payment to Superadmin recorded successfully! (Simulated, no persistence)');
     setShowPaymentToAdminModal(false);
-    // In a real app, send paymentDetails to your backend for recording/verification
+  };
+
+  const handleBookingUpdate = (updatedBookings) => {
+    setBookings(updatedBookings);
+    console.log("Bookings updated by admin:", updatedBookings);
   };
 
   // Render content based on active dashboard tab
@@ -53,7 +90,6 @@ function RestaurantAdminDashboard() {
           <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[300px] flex flex-col items-center justify-center">
             <h3 className="text-xl text-gray-300 mb-4">Welcome to your dashboard, {restaurantData.name}!</h3>
             <p className="text-gray-400 mb-6 text-center">Here you can manage your restaurant's operations and finances.</p>
-            {/* New Payment Button for restaurant to pay superadmin */}
             <button
               onClick={() => setShowPaymentToAdminModal(true)}
               className="px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
@@ -65,9 +101,8 @@ function RestaurantAdminDashboard() {
       case 'Update':
         return (
           <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[300px]">
-            {/* Update Sub-Navigation Tabs: Table, Food */}
             <div className="flex space-x-6 mb-6 justify-center">
-              {['Table', 'Food'].map((tab) => ( // 'Menu' removed
+              {['Table', 'Food'].map((tab) => (
                 <button
                   key={tab}
                   className={`px-4 py-2 rounded-full font-medium transition-colors duration-200 ${
@@ -81,20 +116,22 @@ function RestaurantAdminDashboard() {
                 </button>
               ))}
             </div>
-            {/* Render management components based on activeUpdateTab */}
-            {activeUpdateTab === 'Table' && <TableManagement />}
-            {activeUpdateTab === 'Food' && <FoodManagement />}
+            {activeUpdateTab === 'Table' && <TableManagement tables={tables} setTables={setTables} />}
+            {activeUpdateTab === 'Food' && <FoodManagement foodItems={foodItems} setFoodItems={setFoodItems} />}
           </div>
         );
       case 'Booking':
-        return <BookingManagement />;
+        return <BookingManagement bookings={bookings} setBookings={handleBookingUpdate} />;
       case 'Profile':
         return (
           <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[300px]">
             <h3 className="text-xl font-bold text-yellow-400 mb-4">Restaurant Profile Overview</h3>
             <p className="text-gray-300">Name: <span className="font-semibold">{restaurantData.name}</span></p>
-            <p className="text-gray-300">Address: <span className="font-semibold">{restaurantData.address || 'Not provided'}</span></p>
-            <p className="text-gray-300">Phone: <span className="font-semibold">{restaurantData.phoneNumber || 'Not provided'}</span></p>
+            <p className="text-gray-300">Address: <span className="font-semibold">{restaurantData.address?.street}, {restaurantData.address?.city}, {restaurantData.address?.district}</span></p>
+            <p className="text-gray-300">Phone: <span className="font-semibold">{restaurantData.phoneNumber}</span></p>
+            <p className="text-gray-300">Landline: <span className="font-semibold">{restaurantData.landPhoneNumber || 'N/A'}</span></p>
+            <p className="text-gray-300">Registration No: <span className="font-semibold">{restaurantData.registrationNumber}</span></p>
+            <p className="text-gray-300">Cuisine: <span className="font-semibold">{restaurantData.cuisineType}</span></p>
             <p className="text-gray-300">Status: <span className={`font-semibold ${restaurantData.isOpen ? 'text-green-400' : 'text-red-400'}`}>{restaurantData.isOpen ? 'Open' : 'Closed'}</span></p>
             {restaurantData.isVerified && (
               <p className="text-green-400 mt-2 flex items-center">
@@ -210,6 +247,7 @@ function RestaurantAdminDashboard() {
           onPaymentSubmit={handleAdminPaymentSubmit}
         />
       )}
+      <Footer />
     </div>
   );
 }
