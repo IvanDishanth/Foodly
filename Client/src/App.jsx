@@ -33,7 +33,6 @@ function App() {
       });
   }, []);
 
-  fetch("http://localhost:5000/api/bookings") 
 
 
   return (
