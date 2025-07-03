@@ -6,6 +6,11 @@ import FoodCategories from "./FoodCategories.jsx";
 import DistrictPlaces from "./DistrictPlaces.jsx";
 import UserProfile from "./UserProfile.jsx";
 import Footer from "../../components/Footer.jsx";
+import BookingHistory from "./BookingHistory.jsx";
+
+
+
+
 
 function UserDashboard() {
   const navigate = useNavigate();
@@ -18,6 +23,8 @@ function UserDashboard() {
     phone: '0771234567',
     profilePic: 'https://placehold.co/100x100/555555/FFFFFF?text=JD'
   });
+
+  
 
   // Mock data for restaurants
   const [restaurants, setRestaurants] = useState([
@@ -52,16 +59,27 @@ function UserDashboard() {
       trending: true
     }
   ]);
+  const [foodCategory, setFoodCategory] = useState('');
+  const [districtFilter, setDistrictFilter] = useState('');
+// ...existing code...
 
   const handleRestaurantClick = (id) => {
     navigate(`/restaurant/${id}`);
   };
 
-  const filteredRestaurants = restaurants.filter(restaurant => 
-    restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    restaurant.district.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+ 
+
+  // Filter restaurants based on search and filters
+ const filteredRestaurants = restaurants.filter(restaurant => {
+  const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
+  const matchesFoodCategory = !foodCategory || restaurant.cuisine === foodCategory;
+  const matchesDistrict = !districtFilter || restaurant.district === districtFilter;
+  
+  return matchesSearch && matchesFoodCategory && matchesDistrict;
+});
+
+ 
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
@@ -102,6 +120,13 @@ function UserDashboard() {
           >
             Profile
           </button>
+          <button
+    className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+    onClick={() => setActiveTab('Booking History')}
+  >
+    Booking History
+  </button>
+
         </div>
 
         {/* Content Area */}
@@ -180,13 +205,16 @@ function UserDashboard() {
                 </div>
               </div>
             </>
-          ) : (
+          ) : activeTab === 'Profile' ? (
             <UserProfile user={user} setUser={setUser} />
+          ) : (
+            <BookingHistory />
           )}
         </div>
       </main>
 
       <Footer />
+      
     </div>
   );
 }

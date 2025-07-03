@@ -3,8 +3,12 @@ import Restaurant from '../models/restaurant.model.js';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role, name: user.name, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
 };
 
 // User Registration
@@ -31,16 +35,26 @@ export const register = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
+    console.log("Login attempt for email:", email);
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      console.log("User not found for email:", email);
+      return res.status(404).json({ message: "User not found" });
+    }
+    console.log("User found:", user.email);
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      console.log("Invalid password for user:", user.email);
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    console.log("Password matched for user:", user.email);
 
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user);
     res.status(200).json({ token, user: { id: user._id, name: user.name, role: user.role } });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error in loginUser:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
@@ -75,7 +89,7 @@ export const registerRestaurant = async (req, res) => {
       admin: user._id,
     });
 
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user);
 
     res.status(201).json({
       message: "Restaurant and user registered successfully",
@@ -100,7 +114,12 @@ export const loginRestaurant = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
-    const token = generateToken(restaurant._id, "restaurant");
+    const token = generateToken({
+      _id: restaurant._id,
+      role: "restaurant",
+      name: restaurant.name,
+      email: restaurant.email,
+    });
 
     res.status(200).json({
       message: "Restaurant login successful",

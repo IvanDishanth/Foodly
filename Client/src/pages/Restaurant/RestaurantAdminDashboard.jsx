@@ -121,7 +121,7 @@ function RestaurantAdminDashboard() {
           </div>
         );
       case 'Booking':
-        return <BookingManagement bookings={bookings} setBookings={handleBookingUpdate} />;
+        return <BookingManagement restaurantId={restaurant?.id || restaurant?._id} />;
       case 'Profile':
         return (
           <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[300px]">

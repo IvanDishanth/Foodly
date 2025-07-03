@@ -42,7 +42,7 @@ export const user = (req, res, next) => {
   }
 };
 
-export const superAadminOradmin = (req, res, next) => {
+export const superAdminOrAdmin = (req, res, next) => {
   if (req.user && (req.user.role === "superadmin" || req.user.role === "admin")) {
     next();
   } else {
@@ -50,7 +50,7 @@ export const superAadminOradmin = (req, res, next) => {
   }
 };
 
-export const superAadminOruser = (req, res, next) => {
+export const superAdminOrUser = (req, res, next) => {
   if (req.user && (req.user.role === "superadmin" || req.user.role === "user")) {
     next();
   } else {

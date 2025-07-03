@@ -1,7 +1,7 @@
 // src/components/RestaurantCard.jsx
 import React from 'react';
 
-function RestaurantCard({ restaurant, onClick }) {
+const RestaurantCard = ({ restaurant, onClick }) => {
   return (
     <div 
       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"

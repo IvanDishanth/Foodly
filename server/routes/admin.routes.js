@@ -11,9 +11,10 @@ import {
   updateRestaurantById,
   updateRestaurantStatus,
   changeRestaurantRole,
-  // updateHotelStatus, // Uncomment if you have this function
+  updateBookingStatus,
+  getAllBookings,
 } from "../controllers/admin.controller.js";
-import { protect,superAdminOnly, adminOnly,superAadminOradmin,superAadminOruser } from "../middleware/auth.middleware.js";
+import { protect,superAdminOnly, adminOnly,superAdminOrAdmin,superAdminOrUser } from "../middleware/auth.middleware.js";
 
 
 const router = express.Router();
@@ -21,20 +22,27 @@ const router = express.Router();
 // User management routes
 router.get("/users", protect, superAdminOnly, getAllUsers);
 router.get("/users/:id", protect, superAdminOnly, getUserById);
-router.delete("/users/:id", protect, superAadminOruser, deleteUserById);
-router.put("/users/:id", protect, superAadminOruser, updateUserById);
+router.delete("/users/:id", protect, superAdminOrUser, deleteUserById);
+router.put("/users/:id", protect, superAdminOrUser, updateUserById);
 
 // Restaurant management routes
-router.get("/restaurants", protect, superAadminOruser, getAllRestaurants);
+router.get("/restaurants", protect, superAdminOrUser, getAllRestaurants);
 router.get("/restaurants/:id", protect, superAdminOnly, getRestaurantById);
 router.put("/restaurants/:id", protect, superAdminOnly, updateRestaurantById);
-router.delete("/restaurants/:id", protect, superAadminOradmin, deleteRestaurantById);
-router.post("/restaurants", protect, superAadminOradmin, createRestaurant);
+router.delete("/restaurants/:id", protect, superAdminOrAdmin, deleteRestaurantById);
+router.post("/restaurants", protect, superAdminOrAdmin, createRestaurant);
 router.put("/restaurants/:id/status", protect,adminOnly, updateRestaurantStatus);
-router.put("/restaurants/:id/role",protect, superAadminOradmin, changeRestaurantRole);
+router.put("/restaurants/:id/role",protect, superAdminOrAdmin, changeRestaurantRole);
 
 
 
+
+
+
+
+// Booking management routes
+router.get("/bookings", protect, adminOnly, getAllBookings);
+router.put("/bookings/:id/status", protect, adminOnly, updateBookingStatus);
 
 
 

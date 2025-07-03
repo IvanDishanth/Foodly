@@ -12,14 +12,23 @@ function BookingFormModal({ restaurant, onClose }) {
     e.preventDefault();
     console.log(restaurant);
     try {
-      await axios.post('http://localhost:5000/api/bookings', {
-        restaurantId: "66a1b2c3d4e5f6a7b8c9d0e1",
-        restaurantName: "Sky High Sips",
-        date,
-        time,
-        guests,
-        specialRequests,
-      });
+      const token = localStorage.getItem('token');
+      await axios.post(
+        'http://localhost:5000/api/bookings',
+        {
+          restaurantId: "6862309ddcfabab293b2fa0b",
+          restaurantName: "Palace",
+          date,
+          time,
+          guests,
+          specialRequests,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert('Booking confirmed!');
       onClose(); // Close modal on success
     } catch (err) {
@@ -44,6 +53,7 @@ function BookingFormModal({ restaurant, onClose }) {
             <label className="block text-gray-400 mb-1">Date</label>
             <input
               type="date"
+              name="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
@@ -55,6 +65,7 @@ function BookingFormModal({ restaurant, onClose }) {
             <label className="block text-gray-400 mb-1">Time</label>
             <input
               type="time"
+              name="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
               className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
@@ -64,6 +75,7 @@ function BookingFormModal({ restaurant, onClose }) {
           <div>
             <label className="block text-gray-400 mb-1">Number of Guests</label>
             <select
+              name="guests"
               value={guests}
               onChange={(e) => setGuests(parseInt(e.target.value))}
               className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
@@ -77,6 +89,7 @@ function BookingFormModal({ restaurant, onClose }) {
           <div>
             <label className="block text-gray-400 mb-1">Special Requests (Optional)</label>
             <textarea
+              name="specialRequests"
               value={specialRequests}
               onChange={(e) => setSpecialRequests(e.target.value)}
               className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"

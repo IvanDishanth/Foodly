@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate  } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
@@ -15,6 +15,11 @@ import RestaurantDetailsPage from "./pages/User/RestaurantDetailsPage.jsx";
 import UserProfile from "./pages/User/UserProfile.jsx";
 import api from "./api/axios.js"; // use your custom axios instance
 import RestaurantLoginForm from "./pages/RestaurantLoginForm.jsx";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard.jsx";
+
+
+
+const role = localStorage.getItem('role');
 
 function App() {
   useEffect(() => {
@@ -27,6 +32,9 @@ function App() {
         }
       });
   }, []);
+
+  fetch("http://localhost:5000/api/bookings") 
+
 
   return (
     <>
@@ -44,11 +52,25 @@ function App() {
         <Route path="//Restaurant-Dashboard" element={<RDashboard />} />
         <Route path="/restaurant/:restaurantId" element={<RestaurantDetailsPage />} />
         <Route path="/RestaurantLoginForm" element={<RestaurantLoginForm />} />
+        <Route path="/SuperAdminDashboard" element={<SuperAdminDashboard />} />
+
+
+
+
+<Route
+  path="/UserDashboard"
+  element={role === 'user' ? <UserDashboard /> : <Navigate to="/" />}
+/>
+<Route
+  path="/SuperAdminDashboard"
+  element={role === 'superadmin' ? <SuperAdminDashboard /> : <Navigate to="/" />}
+/>
 
       </Routes>
+      
       
     </>
   );
 }
 
-export default App;
+export default App;        

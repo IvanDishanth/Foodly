@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import api from "../api/axios.js";
 import { useNavigate, Link } from 'react-router-dom';
@@ -24,12 +25,20 @@ const LoginForm = () => {
         email: form.email,
         password: form.password
       });
+      const { token, user } = res.data;
 
-      // Save token to local storage
-      localStorage.setItem('token', res.data.token);
-      setLoading(false);
-      // Redirect to the user dashboard (Home.jsx) after successful login
+    localStorage.setItem('token', token);
+    localStorage.setItem('role', user.role); 
+
+    setLoading(false);
+
+    
+    if (user.role === 'superadmin') {
+      navigate('/SuperAdminDashboard');
+    } else {
       navigate('/UserDashboard');
+    }
+     
     } catch (err) {
       setError(
         err?.response?.data?.message ||

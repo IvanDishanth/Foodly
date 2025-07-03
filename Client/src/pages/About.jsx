@@ -32,7 +32,7 @@ const About = () => {
         }}
       >
         
-          <p className=" transform translate-x-[0%] translate-y-[20%]">
+          <div className=" transform translate-x-[0%] translate-y-[20%]">
             Fudly is your smart dining companion, helping you discover, reserve,
             and enjoy the best restaurants near you.
          
@@ -40,7 +40,8 @@ const About = () => {
             Our mission is to simplify your dining journey from finding the right
             spot to enjoying your favorite dish.
           </p>
-           </p>
+          </div>
+      
       
     </div>
   </div>

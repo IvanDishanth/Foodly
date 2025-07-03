@@ -10,6 +10,7 @@ import Video from "./Video.jsx";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 
+
 const Home = () => {
   // Create a ref for the About section
   const aboutSectionRef = useRef(null);
