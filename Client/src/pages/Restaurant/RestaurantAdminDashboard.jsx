@@ -16,6 +16,9 @@ function RestaurantAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+    const [tables, setTables] = useState([]);          
+  const [foodItems, setFoodItems] = useState([]);   
+
   useEffect(() => {
     const fetchRestaurantData = async () => {
       try {
