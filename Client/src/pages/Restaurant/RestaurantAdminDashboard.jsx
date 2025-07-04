@@ -11,8 +11,8 @@ import Footer from "../../components/Footer.jsx";
 // Mock data storage for the admin dashboard (resets on page refresh)
 const mockAdminData = {
   restaurant: {
-    id: 'adminRest',
-    name: 'Admin Demo Restaurant',
+    id: "6862309ddcfabab293b2fa0b",
+    name: 'Palace',
     bannerImage: '/images/restaurant-banner-admin.jpg', // Placeholder image
     profilePicture: 'https://placehold.co/100x100/555555/FFFFFF?text=Logo', // Placeholder image
     isOpen: true,
@@ -121,7 +121,7 @@ function RestaurantAdminDashboard() {
           </div>
         );
       case 'Booking':
-        return <BookingManagement restaurantId={restaurant?.id || restaurant?._id} />;
+        return <BookingManagement restaurantId={restaurantData?.id || restaurantData?._id} />;
       case 'Profile':
         return (
           <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[300px]">

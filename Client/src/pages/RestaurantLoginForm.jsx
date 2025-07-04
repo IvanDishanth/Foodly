@@ -62,6 +62,9 @@ const RestaurantLoginForm = () => {
       });
 
       // Save token and restaurant info (if needed) to local storage
+      localStorage.setItem("token", res.data.token); // ✅ store token
+      localStorage.setItem("restaurantId", res.data.restaurant._id); // ✅ store restaurantId
+
       localStorage.setItem('restaurantToken', res.data.token);
       localStorage.setItem('restaurantInfo', JSON.stringify(res.data.restaurant)); // Save restaurant details
       setLoading(false);

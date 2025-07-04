@@ -3,33 +3,63 @@ import axios from 'axios';
 
   const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const fetchBookings = async (restaurantId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:5000/api/bookings/restaurant/${restaurantId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setBookings(response.data.bookings);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
+   const fetchBookings = async (restaurantId) => {
+  try {
+    setLoading(true);
+
+    const token = localStorage.getItem("token");
+    console.log("📦 Token:", token);
+    console.log("📦 restaurantId:", "6862309ddcfabab293b2fa0b");
+
+    if (!token || !restaurantId || restaurantId === "undefined") {
+      console.error("❌ Missing token or restaurantId");
+      setError("Auth or ID missing. Please login again.");
+      return;
     }
-  };
+
+    const response = await axios.get(
+      `http://localhost:5000/api/bookings/restaurant/${restaurantId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("✅ Bookings fetched:", response.data);
+
+    if (!response.data.bookings) {
+      console.error("❌ response.data.bookings is missing");
+      setError("Unexpected response format");
+      return;
+    }
+
+    setBookings(response.data.bookings);
+  } catch (err) {
+    console.error("❌ Error fetching bookings:", err.response?.data || err.message);
+    setError("Unauthorized or failed to fetch bookings.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
 
   // Fetch bookings for this restaurant
  useEffect(() => {
-  const restaurantId = localStorage.getItem("restaurantId"); // or props / context / auth
-  if (restaurantId) {
-    fetchBookings(restaurantId);
-  } else {
-    console.error("restaurantId is missing!");
-  }
+  const restaurantId = localStorage.getItem("restaurantId");
+console.log("restaurantId from localStorage:", restaurantId); 
+
+if (restaurantId) {
+  fetchBookings(restaurantId);
+} else {
+  console.error("restaurantId is missing!");
+  setError("Restaurant ID not found. Please log in again.");
+}
+
 }, []);
 
 
@@ -77,6 +107,8 @@ import axios from 'axios';
   };
 
   if (loading) return <p className="text-white text-center">Loading bookings...</p>;
+    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
 
   return (
     <div className="bg-gray-800 p-6 rounded-lg">
