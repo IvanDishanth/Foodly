@@ -7,6 +7,8 @@ import DistrictPlaces from "./DistrictPlaces.jsx";
 import UserProfile from "./UserProfile.jsx";
 import Footer from "../../components/Footer.jsx";
 import BookingHistory from "./BookingHistory.jsx";
+import axios from 'axios';
+
 
 
 
@@ -17,12 +19,31 @@ function UserDashboard() {
   const [activeTab, setActiveTab] = useState('Dining Out');
   const [activeDiningTab, setActiveDiningTab] = useState('Food');
   const [searchQuery, setSearchQuery] = useState('');
-  const [user, setUser] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '0771234567',
-    profilePic: 'https://placehold.co/100x100/555555/FFFFFF?text=JD'
-  });
+  
+
+  const [user, setUser] = useState(null); // changed from mock data
+
+  //  Add useEffect here
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/api/user', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // navigate('/login'); // optional if unauthorized
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+  
+
 
   
 

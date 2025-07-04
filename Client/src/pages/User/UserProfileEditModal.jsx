@@ -93,10 +93,9 @@ function UserProfileEditModal({ user, onClose, onSave }) {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                 <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
+                  type="text"
+                  value={user.name || ''}
+                  onChange={(e) => setUser({ ...user, name: e.target.value })}
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   required
                 />

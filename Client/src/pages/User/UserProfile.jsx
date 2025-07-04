@@ -1,6 +1,29 @@
 // src/components/UserProfile.jsx
 import React, { useState } from 'react';
 import UserProfileEditModal from "./UserProfileEditModal.jsx";
+import axios from 'axios';
+
+const handleSave = async (updatedUserData) => {
+  try {
+    const token = localStorage.getItem('token'); // or from context
+    const response = await axios.put(
+      'http://localhost:5000/api/user',
+      updatedUserData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setUser(response.data); // update the UI
+    setShowEditModal(false);
+  } catch (err) {
+    console.error('Failed to update user:', err);
+    alert('Failed to update profile. Please try again.');
+  }
+};
+
 
 function UserProfile({ user, setUser }) {
   const [showEditModal, setShowEditModal] = useState(false);

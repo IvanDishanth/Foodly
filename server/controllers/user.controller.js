@@ -18,22 +18,27 @@ export const getUserProfile = async (req, res) => {
 // @access  Private
 export const updateUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = await User.findById(req.user.id);
 
-    const { name, email, phone } = req.body;
-    if (!name || !email) {
-      return res.status(422).json({ message: "Missing fields" });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    user.name = name;
-    user.email = email;
-    user.phone = phone;
-    await user.save();
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone;
+    user.profilePic = req.body.profilePic || user.profilePic;
 
-    res.status(200).json({ message: "Profile updated successfully" });
-  } catch (error) {
-    res.status(400).json({ message: "Invalid data" });
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      profilePic: updatedUser.profilePic,
+    });
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
