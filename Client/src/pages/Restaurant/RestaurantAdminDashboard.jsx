@@ -1,5 +1,6 @@
 // src/pages/RestaurantAdminDashboard.jsx (No Firebase)
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import RestaurantProfileEditForm from "./RestaurantProfileEditForm.jsx";
 import TableManagement from "./TableManagement.jsx";
@@ -8,44 +9,37 @@ import BookingManagement from "./BookingManagement.jsx";
 import RestaurantPaymentToAdminModal from "./RestaurantPaymentToAdminModal.jsx";
 import Footer from "../../components/Footer.jsx";
 
-// Mock data storage for the admin dashboard (resets on page refresh)
-const mockAdminData = {
-  restaurant: {
-    id: "6862309ddcfabab293b2fa0b",
-    name: 'Palace',
-    bannerImage: '/images/restaurant-banner-admin.jpg', // Placeholder image
-    profilePicture: 'https://placehold.co/100x100/555555/FFFFFF?text=Logo', // Placeholder image
-    isOpen: true,
-    isVerified: true,
-    address: { street: 'Admin Street', city: 'Admin City', district: 'Colombo' },
-    phoneNumber: '0771234567',
-    landPhoneNumber: '0119876543',
-    registrationNumber: 'ADMINREG123',
-    cuisineType: 'International'
-  },
-  tables: [
-    { id: 1, name: 'Table 1 (Window)', capacity: 4, isAvailable: true, image: 'https://placehold.co/150x100/4CAF50/FFFFFF?text=T1' },
-    { id: 2, name: 'Table 2 (Booth)', capacity: 6, isAvailable: false, image: 'https://placehold.co/150x100/FF0000/FFFFFF?text=T2' },
-    { id: 3, name: 'Patio Table 1', capacity: 2, isAvailable: true, image: 'https://placehold.co/150x100/4CAF50/FFFFFF?text=T3' },
-  ],
-  foodItems: [
-    { id: 1, name: 'Biryani Special', price: 15.99, isAvailable: true, image: 'https://placehold.co/150x100/FFD700/000000?text=Biryani' },
-    { id: 2, name: 'Chicken Curry', price: 12.50, isAvailable: true, image: 'https://placehold.co/150x100/FF4500/FFFFFF?text=Curry' },
-    { id: 3, name: 'Vegetable Dosa', price: 8.00, isAvailable: false, image: 'https://placehold.co/150x100/32CD32/FFFFFF?text=Dosa' },
-  ],
-  bookings: [
-    { id: 'book1', userName: 'John Doe', date: '2025-07-01', time: '19:00', guests: 4, status: 'Pending', table: 'Table 2 (Booth)', restaurantId: 'adminRest' },
-    { id: 'book2', userName: 'Jane Smith', date: '2025-07-02', time: '12:30', guests: 2, status: 'Accepted', table: 'Table 1 (Window)', restaurantId: 'adminRest' },
-  ],
-};
-
 function RestaurantAdminDashboard() {
   const navigate = useNavigate();
 
-  const [restaurantData, setRestaurantData] = useState(mockAdminData.restaurant);
-  const [tables, setTables] = useState(mockAdminData.tables);
-  const [foodItems, setFoodItems] = useState(mockAdminData.foodItems);
-  const [bookings, setBookings] = useState(mockAdminData.bookings);
+  const [restaurantData, setRestaurantData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchRestaurantData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const response = await axios.get('http://localhost:5000/api/admin/restaurant', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setRestaurantData(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch restaurant data.');
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurantData();
+  }, [navigate]);
 
 
   const [activeDashboardTab, setActiveDashboardTab] = useState('Home');
@@ -121,7 +115,7 @@ function RestaurantAdminDashboard() {
           </div>
         );
       case 'Booking':
-        return <BookingManagement restaurantId={restaurantData?.id || restaurantData?._id} />;
+        return <BookingManagement restaurantId={restaurantData?._id} />;
       case 'Profile':
         return (
           <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[300px]">
@@ -151,6 +145,14 @@ function RestaurantAdminDashboard() {
         return null;
     }
   };
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading dashboard...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 mt-10">{error}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white font-sans relative">

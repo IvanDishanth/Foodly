@@ -7,6 +7,7 @@ import {
   createRestaurant,
   getAllRestaurants,
   getRestaurantById,
+  getRestaurantByAdmin,
   deleteRestaurantById,
   updateRestaurantById,
   updateRestaurantStatus,
@@ -14,37 +15,47 @@ import {
   updateBookingStatus,
   getAllBookings,
 } from "../controllers/admin.controller.js";
-import { protect,superAdminOnly, adminOnly,superAdminOrAdmin,superAdminOrUser } from "../middleware/auth.middleware.js";
 
+import {
+  protect,
+  superAdminOnly,
+  isRestaurant,
+  superAdminOrAdmin,
+  superAdminOrUser
+} from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// User management routes
+
+// ────────────────────────────────────────────────
+// 🔹 USER MANAGEMENT ROUTES
+// ────────────────────────────────────────────────
 router.get("/users", protect, superAdminOnly, getAllUsers);
 router.get("/users/:id", protect, superAdminOnly, getUserById);
 router.delete("/users/:id", protect, superAdminOrUser, deleteUserById);
 router.put("/users/:id", protect, superAdminOrUser, updateUserById);
 
-// Restaurant management routes
+
+// ────────────────────────────────────────────────
+// 🔹 RESTAURANT MANAGEMENT ROUTES
+// ────────────────────────────────────────────────
 router.get("/restaurants", protect, superAdminOrUser, getAllRestaurants);
 router.get("/restaurants/:id", protect, superAdminOnly, getRestaurantById);
+router.get("/restaurant", protect, isRestaurant, getRestaurantByAdmin);  // Restaurant's own dashboard
 router.put("/restaurants/:id", protect, superAdminOnly, updateRestaurantById);
 router.delete("/restaurants/:id", protect, superAdminOrAdmin, deleteRestaurantById);
 router.post("/restaurants", protect, superAdminOrAdmin, createRestaurant);
-router.put("/restaurants/:id/status", protect,adminOnly, updateRestaurantStatus);
-router.put("/restaurants/:id/role",protect, superAdminOrAdmin, changeRestaurantRole);
+router.put("/restaurants/:id/status", protect, isRestaurant, updateRestaurantStatus);
+router.put("/restaurants/:id/role", protect, superAdminOrAdmin, changeRestaurantRole);
 
 
+// ────────────────────────────────────────────────
+// 🔹 BOOKING MANAGEMENT ROUTES
+// ────────────────────────────────────────────────
+router.get("/bookings", protect, superAdminOrAdmin, getAllBookings);
+router.put("/bookings/:id/status", protect, superAdminOrAdmin, updateBookingStatus);
 
-
-
-
-
-// Booking management routes
-router.get("/bookings", protect, adminOnly, getAllBookings);
-router.put("/bookings/:id/status", protect, adminOnly, updateBookingStatus);
-
-
+router.get('/restaurant', protect, isRestaurant, getRestaurantByAdmin);
 
 
 export default router;

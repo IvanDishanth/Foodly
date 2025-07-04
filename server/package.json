@@ -1,16 +1,12 @@
 {
-  "name": "foodly",
+  "name": "server",
   "version": "1.0.0",
-  "homepage": "https://your-username.github.io/Foodly",
   "description": "",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
-
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",

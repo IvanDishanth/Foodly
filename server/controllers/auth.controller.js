@@ -103,34 +103,74 @@ export const registerRestaurant = async (req, res) => {
 };
 
 // Restaurant Login
+// export const loginRestaurant = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     const restaurant = await Restaurant.findOne({ email });
+//     if (!restaurant)
+//       return res.status(400).json({ message: "Invalid email or password" });
+
+//     const isMatch = await bcrypt.compare(password, restaurant.password);
+//     if (!isMatch)
+//       return res.status(400).json({ message: "Invalid email or password" });
+
+//     const token = generateToken({
+//       _id: restaurant._id,
+//       role: "restaurant",
+//       name: restaurant.name,
+//       email: restaurant.email,
+//     });
+
+//     res.status(200).json({
+//       message: "Restaurant login successful",
+//       restaurant: {
+//         id: restaurant._id,
+//         name: restaurant.name,
+//         email: restaurant.email,
+//       },
+//       token,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error", error: error.message });
+//   }
+// };
+
+
 export const loginRestaurant = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const restaurant = await Restaurant.findOne({ email });
-    if (!restaurant)
-      return res.status(400).json({ message: "Invalid email or password" });
+
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
 
     const isMatch = await bcrypt.compare(password, restaurant.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Invalid email or password" });
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
-    const token = generateToken({
-      _id: restaurant._id,
-      role: "restaurant",
-      name: restaurant.name,
-      email: restaurant.email,
-    });
+    // ✅ Generate JWT with role = 'restaurant'
+    const token = jwt.sign(
+      { id: restaurant._id, role: 'restaurant' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-    res.status(200).json({
-      message: "Restaurant login successful",
+    res.json({
+      success: true,
+      message: 'Login successful',
+      token,
       restaurant: {
         id: restaurant._id,
         name: restaurant.name,
         email: restaurant.email,
+        role: 'restaurant',
       },
-      token,
     });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };

@@ -132,6 +132,21 @@ export const getRestaurantById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// @desc    Get restaurant by admin ID
+// @route   GET /api/admin/restaurant
+// @access  Admin
+export const getRestaurantByAdmin = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.user.id);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+    res.json(restaurant);
+  } catch (err) {
+    console.error('Error fetching restaurant:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 // @desc    Update restaurant by ID
 // @route   PUT /api/admin/restaurants/:id
@@ -260,3 +275,6 @@ export const updateBookingStatus = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
