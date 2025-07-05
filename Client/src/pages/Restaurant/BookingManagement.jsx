@@ -50,15 +50,15 @@ const BookingManagement = ({ restaurantId }) => {
               className="border border-gray-200 rounded-md p-4 flex flex-col md:flex-row justify-between items-start md:items-center"
             >
               <div className="space-y-1">
-                <h3 className="text-xl font-semibold">{booking.restaurantId?.name || booking.restaurantName}</h3>
+                <h3 className="text-xl font-semibold text-black">{booking.restaurantId?.name || booking.restaurantName}</h3>
                 <p className="text-gray-600 text-sm">{booking.restaurantId?.address || 'Address not available'}</p>
-                <p className="text-sm">
+                <p className="text-sm text-black">
                   <strong>Date:</strong> {new Date(booking.date).toLocaleDateString()} <br />
                   <strong>Time:</strong> {booking.time}
                 </p>
-                <p className="text-sm"><strong>Guests:</strong> {booking.guests}</p>
+                <p className="text-sm text-black"><strong>Guests:</strong> {booking.guests}</p>
                 {booking.specialRequests && (
-                  <p className="text-sm"><strong>Note:</strong> {booking.specialRequests}</p>
+                  <p className="text-sm text-black"><strong>Note:</strong> {booking.specialRequests}</p>
                 )}
               </div>
 
