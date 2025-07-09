@@ -1,46 +1,110 @@
-import User from "../models/user.model.js";
+import jwt from 'jsonwebtoken';
+import User from '../models/user.model.js';
 import Restaurant from "../models/restaurant.model.js";
 
-// @desc    Get current user profile
-// @route   GET /api/user
-// @access  Private
+// @desc   Get user profile
+// @route  GET /api/user
+// @access Private
 export const getUserProfile = async (req, res) => {
   try {
-    const { _id, name, email, phone, role } = req.user;
-    res.status(200).json({ id: _id, name, email, phone, role });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    // req.user should be set by the authenticate middleware
+    const user = req.user;
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 // @desc    Update user profile
 // @route   PUT /api/user
 // @access  Private
+
+
 export const updateUserProfile = async (req, res) => {
   try {
+    // 1. Find the user
     const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    // 2. Validate email format if email is being updated
+    if (req.body.email && !/^\S+@\S+\.\S+$/.test(req.body.email)) {
+      return res.status(400).json({ message: 'Please enter a valid email address' });
+    }
+    
 
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-    user.phone = req.body.phone || user.phone;
-    user.profilePic = req.body.profilePic || user.profilePic;
+    // 3. Handle profile picture upload
+    if (req.file) {
+      // File uploaded via multipart/form-data
+      user.profilePic = req.file.buffer.toString('base64');
+    } else if (req.body.profilePic && typeof req.body.profilePic === 'string') {
+      // URL string from cloud upload
+      user.profilePic = req.body.profilePic;
+    }
 
+    // 4. List of fields allowed to be updated
+    // 4. Update user fields (excluding role)
+const updatableFields = ['name', 'email', 'phone', 'profilePic'];
+updatableFields.forEach(field => {
+  if (req.body[field] !== undefined) {
+    user[field] = req.body[field];
+  }
+});
+
+
+    // 5. Update only those fields
+    updatableFields.forEach(field => {
+      if (req.body[field] !== undefined && req.body[field] !== null) {
+        user[field] = req.body[field].trim ? req.body[field].trim() : req.body[field];
+      }
+    });
+
+    // 6. Save updated user
     const updatedUser = await user.save();
 
-    res.json({
+    // 7. Build response (don’t expose sensitive fields)
+    const userResponse = {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
       phone: updatedUser.phone,
       profilePic: updatedUser.profilePic,
-    });
+      role: updatedUser.role,
+      updatedAt: updatedUser.updatedAt,
+    };
+
+    res.status(200).json(userResponse);
+
   } catch (err) {
     console.error('Update error:', err);
-    res.status(500).json({ message: 'Server error' });
+
+    // Mongoose validation errors
+    if (err.name === 'ValidationError') {
+      console.error("Mongoose validation failed:", err.errors);
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ message: 'Validation failed', errors });
+    }
+
+    // Duplicate email (unique index)
+    if (err.code === 11000) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+
+    // Fallback: Server error
+    res.status(500).json({ 
+      message: 'Server error',
+      ...(process.env.NODE_ENV === 'development' && { error: err.message })
+    });
   }
 };
+
+
 
 // @desc    Delete user account
 // @route   DELETE /api/user/delete
@@ -81,3 +145,5 @@ export const getAllRestaurantsForUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+

@@ -1,5 +1,7 @@
+
 import dotenv from "dotenv";
 import express from "express";
+import session from "express-session";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -34,13 +36,24 @@ app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+// ✅ Add this block before routes
+app.use(session({
+  name: 'sessionId',
+  secret: process.env.SESSION_SECRET || 'your-secret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // use true only in HTTPS production
+    sameSite: 'Lax' // 'Strict' is more secure, but may break some flows
+  }
+}));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get('/api', (req, res) => {
   res.send("API is running");
 });
-
 
 app.get("/test-env", (req, res) => {
   res.json({
@@ -107,6 +120,11 @@ process.on("SIGINT", gracefulShutdown);
 process.on("unhandledRejection", (err) => {
   console.error(" Unhandled Rejection:", err);
   process.exit(1);
+});
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
 });
 
 startServer();

@@ -8,6 +8,7 @@ import UserProfile from "./UserProfile.jsx";
 import Footer from "../../components/Footer.jsx";
 import BookingHistory from "./BookingHistory.jsx";
 import axios from 'axios';
+import API from '../../api.js';
 
 
 
@@ -15,71 +16,54 @@ import axios from 'axios';
 
 
 function UserDashboard() {
+  const [user, setUser] = useState(null); // changed from mock data
   const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState('Dining Out');
   const [activeDiningTab, setActiveDiningTab] = useState('Food');
   const [searchQuery, setSearchQuery] = useState('');
   
-
-  const [user, setUser] = useState(null); // changed from mock data
+  const [restaurants, setRestaurants] = useState([]);
+ 
 
   //  Add useEffect here
   useEffect(() => {
-    const fetchUserProfile = async () => {
+   const fetchUserProfile = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/user', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    setUserProfile(response.data);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    if (error.response?.status === 404) {
+      // Handle 404 specifically
+      console.error('API endpoint not found. Please check backend routes.');
+    }
+  }
+};
+
+
+    const fetchRestaurants = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/user', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setUser(response.data);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        // navigate('/login'); // optional if unauthorized
+        const response = await API.get("/user/restaurants");
+        setRestaurants(response.data);
+      } catch (err) {
+        console.error("Error fetching restaurants:", err);
       }
     };
 
-    fetchUserProfile();
-  }, []);
-  
 
+  fetchUserProfile();
+  fetchRestaurants();
+}, []);
 
-  
 
   // Mock data for restaurants
-  const [restaurants, setRestaurants] = useState([
-    {
-      id: 1,
-      name: 'Sky High Sips',
-      cuisine: 'International',
-      district: 'Colombo',
-      isOpen: true,
-      profilePic: 'https://placehold.co/100x100/FFD700/000000?text=SHS',
-      rating: 4.5,
-      trending: true
-    },
-    {
-      id: 2,
-      name: 'Biryani House',
-      cuisine: 'Indian',
-      district: 'Kandy',
-      isOpen: true,
-      profilePic: 'https://placehold.co/100x100/32CD32/FFFFFF?text=BH',
-      rating: 4.2,
-      trending: false
-    },
-    {
-      id: 3,
-      name: 'Newly Opened Place',
-      cuisine: 'Fusion',
-      district: 'Galle',
-      isOpen: false,
-      profilePic: 'https://placehold.co/100x100/FF4500/FFFFFF?text=NOP',
-      rating: 4.0,
-      trending: true
-    }
-  ]);
+  
+
   const [foodCategory, setFoodCategory] = useState('');
   const [districtFilter, setDistrictFilter] = useState('');
 // ...existing code...
@@ -121,6 +105,12 @@ function UserDashboard() {
             >
               Log In
             </button>
+           <img
+              src={user?.profilePic || "/default-profile.png"} // ✅ Safe access
+              alt="Profile"
+              className="w-10 h-10 rounded-full"
+            />
+
           </div>
         </div>
       </header>

@@ -102,38 +102,7 @@ export const registerRestaurant = async (req, res) => {
   }
 };
 
-// Restaurant Login
-// export const loginRestaurant = async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     const restaurant = await Restaurant.findOne({ email });
-//     if (!restaurant)
-//       return res.status(400).json({ message: "Invalid email or password" });
 
-//     const isMatch = await bcrypt.compare(password, restaurant.password);
-//     if (!isMatch)
-//       return res.status(400).json({ message: "Invalid email or password" });
-
-//     const token = generateToken({
-//       _id: restaurant._id,
-//       role: "restaurant",
-//       name: restaurant.name,
-//       email: restaurant.email,
-//     });
-
-//     res.status(200).json({
-//       message: "Restaurant login successful",
-//       restaurant: {
-//         id: restaurant._id,
-//         name: restaurant.name,
-//         email: restaurant.email,
-//       },
-//       token,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
 
 
 export const loginRestaurant = async (req, res) => {

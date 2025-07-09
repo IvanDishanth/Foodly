@@ -1,12 +1,15 @@
+import axios from 'axios';
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// Set base URL for all axios requests
+axios.defaults.baseURL = 'http://localhost:5000'; 
 
-export async function signupUser(data) {
-  const res = await fetch(`${apiUrl}/signup`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Signup failed");
-  return res.json();
-}
+// Add request interceptor for auth token
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default axios;
