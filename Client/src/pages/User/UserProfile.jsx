@@ -123,12 +123,12 @@ function UserProfile({ user, setUser }) {
       <div className="flex flex-col items-center">
         {/* Profile Picture */}
         <div className="relative mb-4">
-          <img 
-            src={user.profilePic || FALLBACK_AVATAR} 
-            alt="Profile" 
-            className="w-32 h-32 rounded-full object-cover border-4 border-yellow-500 bg-gray-200"
-            onError={(e) => { e.target.src = FALLBACK_AVATAR ; }}
-          />
+          <img
+  src={user?.profilePic || "https://via.placeholder.com/150"}
+  alt="Profile"
+  className="w-32 h-32 rounded-full"
+/>
+
           <button 
             className="absolute bottom-0 right-0 bg-yellow-500 text-white rounded-full p-2 hover:bg-yellow-600"
             onClick={() => setShowEditModal(true)}

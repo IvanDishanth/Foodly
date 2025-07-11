@@ -10,7 +10,6 @@ import { protect } from "../middleware/auth.middleware.js";
 import multer from 'multer';
 
 
-
 // In user.routes.js
 import { authenticate, verifyToken } from "../middleware/auth.js";
 
@@ -41,7 +40,7 @@ router.route('/')
 
   
 
-router.get('/user', authenticate, getUserProfile);
+router.get("/", authenticate, getUserProfile);
 
 router.post("/logout", protect, logoutUser);
 

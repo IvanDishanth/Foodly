@@ -16,73 +16,93 @@ import API from '../../api.js';
 
 
 function UserDashboard() {
-  const [user, setUser] = useState(null); // changed from mock data
+    const [user, setUser] = useState(null);
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState('Dining Out');
   const [activeDiningTab, setActiveDiningTab] = useState('Food');
   const [searchQuery, setSearchQuery] = useState('');
-  
   const [restaurants, setRestaurants] = useState([]);
- 
-
-  //  Add useEffect here
-  useEffect(() => {
-   const fetchUserProfile = async () => {
-  try {
-    const response = await axios.get('http://localhost:5000/api/user', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    setUserProfile(response.data);
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    if (error.response?.status === 404) {
-      // Handle 404 specifically
-      console.error('API endpoint not found. Please check backend routes.');
-    }
-  }
-};
-
-
-    const fetchRestaurants = async () => {
-      try {
-        const response = await API.get("/user/restaurants");
-        setRestaurants(response.data);
-      } catch (err) {
-        console.error("Error fetching restaurants:", err);
-      }
-    };
-
-
-  fetchUserProfile();
-  fetchRestaurants();
-}, []);
-
-
-  // Mock data for restaurants
-  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [foodCategory, setFoodCategory] = useState('');
   const [districtFilter, setDistrictFilter] = useState('');
-// ...existing code...
+
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await API.get("/user"); // Changed from "/user"
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
+      }
+    };
+
+    const fetchRestaurants = async () => {
+      try {
+        const response = await API.get("/user/restaurants"); // Changed from "/user/restaurants"
+        setRestaurants(response.data);
+      } catch (err) {
+        console.error("Error fetching restaurants:", err);
+        if (err.response?.status === 404) {
+          console.error("Endpoint not found. Please verify backend routes.");
+        }
+      }
+    };
+
+    fetchUserProfile();
+    fetchRestaurants();
+  }, [navigate]);
+
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // For development - mock data when backend isn't available
+      if (process.env.NODE_ENV === 'development') {
+        setRestaurants([
+          { id: 1, name: "Example Restaurant", cuisine: "Italian", district: "Downtown", trending: true }
+        ]);
+        return;
+      }
+
+      // Real API calls
+      const userResponse = await API.get("/users/me");
+      setUser(userResponse.data);
+
+      const restaurantsResponse = await API.get("/restaurants");
+      setRestaurants(restaurantsResponse.data);
+      
+    } catch (err) {
+      console.error("API Error:", err);
+      setError(err.response?.data?.message || "Failed to load data");
+      
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
+    }
+  };
+
+  fetchData();
+}, [navigate]);
 
   const handleRestaurantClick = (id) => {
     navigate(`/restaurant/${id}`);
   };
 
- 
-
-  // Filter restaurants based on search and filters
- const filteredRestaurants = restaurants.filter(restaurant => {
-  const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
-  const matchesFoodCategory = !foodCategory || restaurant.cuisine === foodCategory;
-  const matchesDistrict = !districtFilter || restaurant.district === districtFilter;
-  
-  return matchesSearch && matchesFoodCategory && matchesDistrict;
-});
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFoodCategory = !foodCategory || restaurant.cuisine === foodCategory;
+    const matchesDistrict = !districtFilter || restaurant.district === districtFilter;
+    
+    return matchesSearch && matchesFoodCategory && matchesDistrict;
+  });
 
  
 
@@ -105,11 +125,15 @@ function UserDashboard() {
             >
               Log In
             </button>
-           <img
-              src={user?.profilePic || "/default-profile.png"} // ✅ Safe access
-              alt="Profile"
-              className="w-10 h-10 rounded-full"
-            />
+                            <img
+  src={user?.profilePic || "https://via.placeholder.com/150"}
+  alt="Profile"
+  className="w-10 h-10 rounded-full"
+/>
+
+
+
+
 
           </div>
         </div>
