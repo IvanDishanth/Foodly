@@ -32,19 +32,17 @@ export const createBooking = async (req, res) => {
 };
 
 // Get bookings for logged-in user
-export const getUserBookings = async (req, res) => {
+import Booking from "../models/booking.model.js";
+
+export const getAllBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ userId: req.user.id })
-      .sort({ date: 1, time: 1 })
-      .populate('restaurantId', 'name address');
-
-    res.json({ success: true, count: bookings.length, data: bookings });
-
+    const bookings = await Booking.find({}).populate("user restaurant");
+    res.status(200).json(bookings);
   } catch (err) {
-    console.error('Get user bookings error:', err);
-    res.status(500).json({ success: false, message: 'Server Error', error: err.message });
+    res.status(500).json({ message: "Failed to fetch bookings" });
   }
 };
+
 
 // Get bookings for a specific restaurant
 export const getRestaurantBookings = async (req, res) => {

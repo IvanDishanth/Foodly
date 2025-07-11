@@ -111,12 +111,11 @@ export const createRestaurant = async (req, res) => {
 // @route   GET /api/admin/restaurants
 // @access  Admin
 export const getAllRestaurants = async (req, res) => {
-  console.log("getAllRestaurants called");
   try {
-    const restaurants = await Restaurant.find();
+    const restaurants = await Restaurant.find({});
     res.status(200).json(restaurants);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch restaurants" });
   }
 };
 

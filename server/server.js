@@ -65,7 +65,7 @@ app.get("/test-env", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api", adminRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/image", imageRoutes);
 app.use("/api/payment", paymentRoutes);

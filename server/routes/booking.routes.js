@@ -1,7 +1,7 @@
 import express from 'express';
 import {
   createBooking,
-  getUserBookings,
+  getAllBookings,
   getRestaurantBookings,
   updateBookingStatus,
   updateBooking,
@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(protect);
 
 router.post('/', protect, createBooking);
-router.get('/user', protect, isRestaurant, getUserBookings); // ✅ Allows all logged-in users
+router.get('/', protect, superAdminOnly, getAllBookings); // ✅ Allows all logged-in users
 
 router.get('/restaurant/:restaurantId', getRestaurantBookings); // ✅ make sure param name exists
 router.patch('/:id/status', updateBookingStatus);

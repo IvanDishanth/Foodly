@@ -7,87 +7,216 @@ const SuperAdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // State for all data
   const [users, setUsers] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [bookings, setBookings] = useState([]);
-
-  const [payments, setPayments] = useState([
-    { id: 1, restaurant: 'Spice Garden', date: '2023-06-01', amount: 245.05, status: 'completed' },
-    { id: 2, restaurant: 'Lanka Spice', date: '2023-06-01', amount: 120.00, status: 'completed' },
-    { id: 3, restaurant: 'Bangkok Bites', date: '2023-06-01', amount: 0.00, status: 'pending' }
-  ]);
+  const [payments, setPayments] = useState([]);
 
   // Stats data
-  const stats = [
-    { title: 'Total Users', value: '1,245', change: '+12%', trend: 'up' },
-    { title: 'Total Restaurants', value: '86', change: '+5%', trend: 'up' },
-    { title: 'Active Bookings', value: '32', change: '-3%', trend: 'down' },
-    { title: 'Total Revenue', value: '$12,450', change: '+18%', trend: 'up' }
-  ];
+  const [stats, setStats] = useState([
+    { title: 'Total Users', value: '0', change: '+0%', trend: 'up' },
+    { title: 'Total Restaurants', value: '0', change: '+0%', trend: 'up' },
+    { title: 'Active Bookings', value: '0', change: '+0%', trend: 'up' },
+    { title: 'Total Revenue', value: '$0', change: '+0%', trend: 'up' }
+  ]);
 
-  const toggleUserStatus = (id) => {
-    setUsers(users.map(user => 
-      user.id === id ? { ...user, status: user.status === 'active' ? 'suspended' : 'active' } : user
-    ));
-  };
-useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      try {
-        const [usersRes, restaurantsRes, bookingsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/admin/users', config),
-          axios.get('http://localhost:5000/api/admin/restaurants', config),
-          axios.get('http://localhost:5000/api/admin/bookings', config),
-        ]);
-        setUsers(usersRes.data);
-        setRestaurants(restaurantsRes.data);
-        setBookings(bookingsRes.data);
-      } catch (error) {
-        console.error('Failed to fetch data', error);
-      }
+  // Get auth token and config
+  const getConfig = () => {
+    const token = localStorage.getItem('token');
+    return {
+      headers: { Authorization: `Bearer ${token}` }
     };
-    fetchData();
-  }, []);
-
-  const updateRestaurantStatus = (id, status) => {
-    setRestaurants(restaurants.map(restaurant => 
-      restaurant.id === id ? { ...restaurant, status } : restaurant
-    ));
   };
 
-  const updateBookingStatus = async (id, status) => {
+  // Fetch all data
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(
-        `http://localhost:5000/api/admin/bookings/${id}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setBookings(bookings.map(b => (b._id === id ? { ...b, status } : b)));
-    } catch (error) {
-      console.error('Failed to update booking status', error);
+      const [usersRes, restaurantsRes, bookingsRes, paymentsRes] = await Promise.all([
+    axios.get('http://localhost:5000/api/admin/users', getConfig()), // Changed from /api/admin/users
+    axios.get('http://localhost:5000/api/admin/restaurants', getConfig()), // Changed
+    axios.get('http://localhost:5000/api/admin/bookings', getConfig()), // Changed
+    axios.get('http://localhost:5000/api/admin/payments', getConfig()) // Changed
+  ]);
+
+      setUsers(usersRes.data);
+      setRestaurants(restaurantsRes.data);
+      setBookings(bookingsRes.data);
+      setPayments(paymentsRes.data);
+
+      // Update stats
+      setStats([
+        { title: 'Total Users', value: usersRes.data.length.toString(), change: '+12%', trend: 'up' },
+        { title: 'Total Restaurants', value: restaurantsRes.data.length.toString(), change: '+5%', trend: 'up' },
+        { title: 'Active Bookings', value: bookingsRes.data.filter(b => b.status === 'confirmed').length.toString(), change: '-3%', trend: 'down' },
+        { 
+          title: 'Total Revenue', 
+          value: `$${paymentsRes.data.reduce((sum, payment) => sum + payment.amount, 0).toFixed(2)}`, 
+          change: '+18%', 
+          trend: 'up' 
+        }
+      ]);
+    } catch (err) {
+      setError('Failed to fetch data. Please try again.');
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const deleteItem = (type, id) => {
-    if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
-      if (type === 'user') {
-        setUsers(users.filter(user => user.id !== id));
-      } else if (type === 'restaurant') {
-        setRestaurants(restaurants.filter(restaurant => restaurant.id !== id));
-      } else if (type === 'booking') {
-        setBookings(bookings.filter(booking => booking.id !== id));
-      } else if (type === 'payment') {
-        setPayments(payments.filter(payment => payment.id !== id));
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Toggle user status
+  const toggleUserStatus = async (id) => {
+    try {
+      const user = users.find(u => u._id === id);
+      const newStatus = user.status === 'active' ? 'suspended' : 'active';
+      
+      await axios.put(
+        `http://localhost:5000/api/admin/users/${id}/status`,
+        { status: newStatus },
+        getConfig()
+      );
+      
+      setUsers(users.map(u => 
+        u._id === id ? { ...u, status: newStatus } : u
+      ));
+    } catch (err) {
+      setError('Failed to update user status');
+      console.error('Error updating user status:', err);
+    }
+  };
+
+  // Update restaurant status
+  const updateRestaurantStatus = async (id, status) => {
+    try {
+      await axios.put(
+      `http://localhost:5000/api/restaurants/${id}`, // Changed from /status
+      { status }, // Just include status in the regular update
+      getConfig()
+    );
+      
+      setRestaurants(restaurants.map(r => 
+        r._id === id ? { ...r, status } : r
+      ));
+    } catch (err) {
+      setError('Failed to update restaurant status');
+      console.error('Error updating restaurant status:', err);
+    }
+  };
+
+  // Update booking status
+  const updateBookingStatus = async (id, status) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/admin/bookings/${id}/status`,
+        { status },
+        getConfig()
+      );
+      
+      setBookings(bookings.map(b => 
+        b._id === id ? { ...b, status } : b
+      ));
+    } catch (err) {
+      setError('Failed to update booking status');
+      console.error('Error updating booking status:', err);
+    }
+  };
+
+  // Delete item
+  const deleteItem = async (type, id) => {
+    if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
+
+    try {
+      let endpoint = '';
+      switch (type) {
+        case 'user':
+          endpoint = `http://localhost:5000/api/admin/users/${id}`;
+          break;
+        case 'restaurant':
+          endpoint = `http://localhost:5000/api/admin/restaurants/${id}`;
+          break;
+        case 'booking':
+          endpoint = `http://localhost:5000/api/admin/bookings/${id}`;
+          break;
+        case 'payment':
+          endpoint = `http://localhost:5000/api/admin/payments/${id}`;
+          break;
+        default:
+          return;
       }
+
+      await axios.delete(endpoint, getConfig());
+      
+      // Update state
+      switch (type) {
+        case 'user':
+          setUsers(users.filter(u => u._id !== id));
+          break;
+        case 'restaurant':
+          setRestaurants(restaurants.filter(r => r._id !== id));
+          break;
+        case 'booking':
+          setBookings(bookings.filter(b => b._id !== id));
+          break;
+        case 'payment':
+          setPayments(payments.filter(p => p._id !== id));
+          break;
+      }
+    } catch (err) {
+      setError(`Failed to delete ${type}`);
+      console.error(`Error deleting ${type}:`, err);
+    }
+  };
+
+  // Create new restaurant
+  const createNewRestaurant = async (restaurantData) => {
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/auth/restaurants',
+        restaurantData,
+        getConfig()
+      );
+      
+      setRestaurants([...restaurants, response.data.restaurant]);
+      return response.data;
+    } catch (err) {
+      setError('Failed to create restaurant');
+      console.error('Error creating restaurant:', err);
+      throw err;
     }
   };
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+          <p>{error}</p>
+          <button 
+            onClick={fetchData}
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'dashboard':
         return (
@@ -115,29 +244,35 @@ useEffect(() => {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-bold mb-4">Recent Activity</h3>
               <div className="space-y-4">
-                {[...bookings, ...payments].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5).map((item, index) => (
-                  <div key={index} className="flex items-center p-3 hover:bg-gray-50 rounded-lg">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      item.amount ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
-                    }`}>
-                      {item.amount ? <FiDollarSign size={18} /> : <FiCalendar size={18} />}
+                {[...bookings.slice(0, 5), ...payments.slice(0, 5)]
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                  .slice(0, 5)
+                  .map((item, index) => (
+                    <div key={index} className="flex items-center p-3 hover:bg-gray-50 rounded-lg">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        item.amount ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
+                      }`}>
+                        {item.amount ? <FiDollarSign size={18} /> : <FiCalendar size={18} />}
+                      </div>
+                      <div className="ml-4 flex-grow">
+                        <p className="font-medium">
+                          {item.amount 
+                            ? `Payment from ${item.restaurant?.name || 'Restaurant'}` 
+                            : `Booking at ${item.restaurantId?.name || 'Restaurant'}`}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(item.date || item.createdAt).toLocaleDateString()} • 
+                          {item.amount ? ` $${item.amount.toFixed(2)}` : ` ${item.guests} guests`}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        item.status === 'completed' || item.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                        item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {item.status}
+                      </span>
                     </div>
-                    <div className="ml-4 flex-grow">
-                      <p className="font-medium">
-                        {item.amount ? `Payment from ${item.restaurant}` : `Booking at ${item.restaurant}`}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {item.date} • {item.amount ? `$${item.amount}` : `${item.guests} guests`}
-                      </p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      item.status === 'completed' || item.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                      item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {item.status}
-                    </span>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </div>
@@ -158,7 +293,7 @@ useEffect(() => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {users.map(user => (
-                    <tr key={user.id} className="hover:bg-gray-50">
+                    <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -170,7 +305,7 @@ useEffect(() => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone || 'N/A'}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -178,16 +313,18 @@ useEffect(() => {
                           {user.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.joined}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
-                          onClick={() => toggleUserStatus(user.id)}
+                          onClick={() => toggleUserStatus(user._id)}
                           className={`mr-2 ${user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
                         >
                           {user.status === 'active' ? 'Suspend' : 'Activate'}
                         </button>
                         <button
-                          onClick={() => deleteItem('user', user.id)}
+                          onClick={() => deleteItem('user', user._id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           Delete
@@ -210,14 +347,13 @@ useEffect(() => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Restaurant</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payments</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {restaurants.map(restaurant => (
-                    <tr key={restaurant.id} className="hover:bg-gray-50">
+                    <tr key={restaurant._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -229,7 +365,9 @@ useEffect(() => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{restaurant.owner}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {restaurant.admin?.name || 'N/A'}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           restaurant.status === 'verified' ? 'bg-green-100 text-green-800' :
@@ -238,13 +376,14 @@ useEffect(() => {
                           {restaurant.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{restaurant.payments}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${restaurant.revenue.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {restaurant.address || 'N/A'}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
                           {restaurant.status !== 'verified' && (
                             <button
-                              onClick={() => updateRestaurantStatus(restaurant.id, 'verified')}
+                              onClick={() => updateRestaurantStatus(restaurant._id, 'verified')}
                               className="text-green-600 hover:text-green-900"
                             >
                               Approve
@@ -252,14 +391,14 @@ useEffect(() => {
                           )}
                           {restaurant.status !== 'rejected' && (
                             <button
-                              onClick={() => updateRestaurantStatus(restaurant.id, 'rejected')}
+                              onClick={() => updateRestaurantStatus(restaurant._id, 'rejected')}
                               className="text-red-600 hover:text-red-900"
                             >
                               Reject
                             </button>
                           )}
                           <button
-                            onClick={() => deleteItem('restaurant', restaurant.id)}
+                            onClick={() => deleteItem('restaurant', restaurant._id)}
                             className="text-red-600 hover:text-red-900"
                           >
                             Delete
@@ -293,14 +432,24 @@ useEffect(() => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {bookings.map(booking => (
                     <tr key={booking._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{booking._id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.userId.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.restaurantId.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {booking.date} at {booking.time}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        #{booking._id.slice(-6)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.guests}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${booking.amount.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.userId?.name || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.restaurantId?.name || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(booking.date).toLocaleDateString()} at {booking.time}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.guests}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${booking.amount?.toFixed(2) || '0.00'}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
@@ -311,17 +460,17 @@ useEffect(() => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
-                          {booking.status === 'Pending' && (
+                          {booking.status === 'pending' && (
                             <button
-                              onClick={() => updateBookingStatus(booking._id, 'Accepted')}
+                              onClick={() => updateBookingStatus(booking._id, 'confirmed')}
                               className="text-green-600 hover:text-green-900"
                             >
                               Accept
                             </button>
                           )}
-                          {booking.status !== 'Cancelled' && (
+                          {booking.status !== 'cancelled' && (
                             <button
-                              onClick={() => updateBookingStatus(booking._id, 'Cancelled')}
+                              onClick={() => updateBookingStatus(booking._id, 'cancelled')}
                               className="text-red-600 hover:text-red-900"
                             >
                               Cancel
@@ -353,11 +502,19 @@ useEffect(() => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {payments.map(payment => (
-                    <tr key={payment.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{payment.id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.restaurant}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.date}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${payment.amount.toFixed(2)}</td>
+                    <tr key={payment._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        #{payment._id.slice(-6)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {payment.restaurant?.name || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(payment.date).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${payment.amount.toFixed(2)}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           payment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
@@ -367,7 +524,7 @@ useEffect(() => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
-                          onClick={() => deleteItem('payment', payment.id)}
+                          onClick={() => deleteItem('payment', payment._id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           Delete
@@ -535,9 +692,23 @@ useEffect(() => {
           {activeTab !== 'dashboard' && (
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800 capitalize">{activeTab}</h2>
-              {activeTab !== 'settings' && (
-                <button className="px-4 py-2 bg-black text-white rounded-lg hover:bg-indigo-700 flex items-center">
-                  <span>Add New</span>
+              {activeTab === 'restaurants' && (
+                <button 
+                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-indigo-700 flex items-center"
+                  onClick={() => {
+                    // Here you would typically open a modal to create a new restaurant
+                    const newRestaurant = {
+                      name: "New Restaurant",
+                      email: "new@restaurant.com",
+                      address: "123 Main St",
+                      phone: "123-456-7890",
+                      cuisine: "International",
+                      status: "pending"
+                    };
+                    createNewRestaurant(newRestaurant);
+                  }}
+                >
+                  <span>Add New Restaurant</span>
                 </button>
               )}
             </div>

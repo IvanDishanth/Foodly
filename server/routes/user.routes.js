@@ -40,7 +40,7 @@ router.route('/')
 
   
 
-router.get("/", authenticate, getUserProfile);
+router.get("/", protect, getUserProfile);
 
 router.post("/logout", protect, logoutUser);
 
