@@ -6,12 +6,8 @@ import Restaurant from "../models/restaurant.model.js";
 // @route   GET /api/admin/users
 // @access  Admin
 export const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
+  const users = await User.find().select('-password');
+  res.json(users);
 };
 
 // @desc    Get user by ID
@@ -83,7 +79,7 @@ export const updateUserById = async (req, res) => {
 // @access  Admin
 export const createRestaurant = async (req, res) => {
   try {
-    const { name, email, address, phone, cuisine, role } = req.body;
+    const { name, email, password, address, phone, cuisine, role } = req.body; // <-- FIXED
 
     // Check if restaurant with this email already exists
     const exists = await Restaurant.findOne({ email });

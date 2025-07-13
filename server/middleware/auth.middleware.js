@@ -27,13 +27,13 @@ export const isRestaurant = (req, res, next) => {
   }
 };
 
-// Superadmin-only middleware
+// filepath: /home/lia-dishanth/Documents/Foodly/server/middleware/auth.middleware.js
 export const superAdminOnly = (req, res, next) => {
-  if (req.user && req.user.role === "superadmin") {
-    next();
-  } else {
-    res.status(403).json({ message: "Superadmin access denied" });
+  console.log("User role:", req.user.role); // Add this line
+  if (req.user.role !== "superadmin") {
+    return res.status(403).json({ message: "user access denied" });
   }
+  next();
 };
 
 // user-only middleware

@@ -1,4 +1,3 @@
-// src/pages/UserDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RestaurantCard from "./RestaurantCard.jsx";
@@ -10,13 +9,8 @@ import BookingHistory from "./BookingHistory.jsx";
 import axios from 'axios';
 import API from '../../api.js';
 
-
-
-
-
-
 function UserDashboard() {
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dining Out');
   const [activeDiningTab, setActiveDiningTab] = useState('Food');
@@ -28,113 +22,77 @@ function UserDashboard() {
   const [foodCategory, setFoodCategory] = useState('');
   const [districtFilter, setDistrictFilter] = useState('');
 
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await API.get("/user"); // Changed from "/user"
-        setUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/login');
-        }
-      }
-    };
-
-    const fetchRestaurants = async () => {
-      try {
-        const response = await API.get("/user/restaurants"); // Changed from "/user/restaurants"
-        setRestaurants(response.data);
-      } catch (err) {
-        console.error("Error fetching restaurants:", err);
-        if (err.response?.status === 404) {
-          console.error("Endpoint not found. Please verify backend routes.");
-        }
-      }
-    };
-
-    fetchUserProfile();
-    fetchRestaurants();
-  }, [navigate]);
-
-  useEffect(() => {
-  const fetchData = async () => {
+ useEffect(() => {
+  const fetchUserProfile = async () => {
     try {
-      // For development - mock data when backend isn't available
-      if (process.env.NODE_ENV === 'development') {
-        setRestaurants([
-          { id: 1, name: "Example Restaurant", cuisine: "Italian", district: "Downtown", trending: true }
-        ]);
-        return;
-      }
-
-      // Real API calls
-      const userResponse = await API.get("/users/me");
-      setUser(userResponse.data);
-
-      const restaurantsResponse = await API.get("/restaurants");
-      setRestaurants(restaurantsResponse.data);
-      
-    } catch (err) {
-      console.error("API Error:", err);
-      setError(err.response?.data?.message || "Failed to load data");
-      
-      if (err.response?.status === 401) {
+      const response = await API.get("/user");
+      setUser(response.data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      if (error.response?.status === 401) {
         localStorage.removeItem('token');
         navigate('/login');
       }
     }
   };
 
-  fetchData();
-}, [navigate]);
+  const fetchRestaurants = async () => {
+  setLoading(true);
+  try {
+    // Use a public endpoint for users
+    const response = await axios.get("http://localhost:5000/api/user/restaurants");
+    setRestaurants(response.data);
+  } catch (err) {
+    setError("Failed to fetch restaurants");
+    console.error("Error fetching restaurants:", err);
+    if (err.response?.status === 401 || err.response?.status === 403) {
+      localStorage.removeItem('token');
+      navigate('/login');
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
+  fetchUserProfile();
+  fetchRestaurants();
+}, [navigate]);
   const handleRestaurantClick = (id) => {
     navigate(`/restaurant/${id}`);
   };
 
   const filteredRestaurants = restaurants.filter(restaurant => {
-    const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = restaurant.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      restaurant.cuisine?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFoodCategory = !foodCategory || restaurant.cuisine === foodCategory;
     const matchesDistrict = !districtFilter || restaurant.district === districtFilter;
-    
     return matchesSearch && matchesFoodCategory && matchesDistrict;
   });
-
- 
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       {/* Header */}
       <header className="bg-white shadow-md p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-yellow-600">Fooly</h1>
+          <h1 className="text-3xl font-bold text-yellow-600">Foodly</h1>
           <div className="flex items-center space-x-4">
-            <button 
+            <button
               className="text-gray-700 hover:text-yellow-600"
               onClick={() => navigate('/signin')}
             >
               Sign In
             </button>
-            <button 
+            <button
               className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
               onClick={() => navigate('/login')}
             >
               Log In
             </button>
-                            <img
-  src={user?.profilePic || "https://via.placeholder.com/150"}
-  alt="Profile"
-  className="w-10 h-10 rounded-full"
-/>
-
-
-
-
-
+            <img
+              src={user?.profilePic || "https://via.placeholder.com/150"}
+              alt="Profile"
+              className="w-10 h-10 rounded-full"
+            />
           </div>
         </div>
       </header>
@@ -156,12 +114,11 @@ function UserDashboard() {
             Profile
           </button>
           <button
-    className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
-    onClick={() => setActiveTab('Booking History')}
-  >
-    Booking History
-  </button>
-
+            className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            onClick={() => setActiveTab('Booking History')}
+          >
+            Booking History
+          </button>
         </div>
 
         {/* Content Area */}
@@ -212,15 +169,35 @@ function UserDashboard() {
                 <DistrictPlaces />
               )}
 
+              {/* All Restaurants Section */}
+              <div className="mt-8">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">All Restaurants</h2>
+                {loading ? (
+                  <div>Loading...</div>
+                ) : error ? (
+                  <div className="text-red-500">{error}</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredRestaurants.map(restaurant => (
+                      <RestaurantCard
+                        key={restaurant._id}
+                        restaurant={restaurant}
+                        onClick={() => handleRestaurantClick(restaurant._id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Trending Section */}
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4 text-gray-800">Top Trending Spots</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {restaurants.filter(r => r.trending).map(restaurant => (
-                    <RestaurantCard 
-                      key={restaurant.id} 
-                      restaurant={restaurant} 
-                      onClick={() => handleRestaurantClick(restaurant.id)}
+                    <RestaurantCard
+                      key={restaurant._id}
+                      restaurant={restaurant}
+                      onClick={() => handleRestaurantClick(restaurant._id)}
                     />
                   ))}
                 </div>
@@ -230,11 +207,11 @@ function UserDashboard() {
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4 text-gray-800">Newly Opened Places</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {restaurants.filter(r => r.name.includes('Newly')).map(restaurant => (
-                    <RestaurantCard 
-                      key={restaurant.id} 
-                      restaurant={restaurant} 
-                      onClick={() => handleRestaurantClick(restaurant.id)}
+                  {restaurants.filter(r => r.name && r.name.toLowerCase().includes('new')).map(restaurant => (
+                    <RestaurantCard
+                      key={restaurant._id}
+                      restaurant={restaurant}
+                      onClick={() => handleRestaurantClick(restaurant._id)}
                     />
                   ))}
                 </div>
@@ -249,7 +226,6 @@ function UserDashboard() {
       </main>
 
       <Footer />
-      
     </div>
   );
 }

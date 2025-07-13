@@ -1,4 +1,3 @@
-// src/pages/SuperAdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FiUsers, FiHome, FiDollarSign, FiCalendar, FiSettings, FiMenu, FiSearch, FiBell, FiUser } from 'react-icons/fi';
@@ -32,24 +31,23 @@ const SuperAdminDashboard = () => {
     };
   };
 
-  // Fetch all data
   const fetchData = async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const [usersRes, restaurantsRes, bookingsRes, paymentsRes] = await Promise.all([
-    axios.get('http://localhost:5000/api/admin/users', getConfig()), // Changed from /api/admin/users
-    axios.get('http://localhost:5000/api/admin/restaurants', getConfig()), // Changed
-    axios.get('http://localhost:5000/api/admin/bookings', getConfig()), // Changed
-    axios.get('http://localhost:5000/api/admin/payments', getConfig()) // Changed
-  ]);
+      const config = getConfig();
+
+      const usersRes = await axios.get('http://localhost:5000/api/admin/users', config);
+      const restaurantsRes = await axios.get('http://localhost:5000/api/admin/restaurants', config);
+      const bookingsRes = await axios.get('http://localhost:5000/api/admin/bookings', config);
+      const paymentsRes = await axios.get('http://localhost:5000/api/admin/payments', config);
 
       setUsers(usersRes.data);
       setRestaurants(restaurantsRes.data);
       setBookings(bookingsRes.data);
       setPayments(paymentsRes.data);
 
-      // Update stats
       setStats([
         { title: 'Total Users', value: usersRes.data.length.toString(), change: '+12%', trend: 'up' },
         { title: 'Total Restaurants', value: restaurantsRes.data.length.toString(), change: '+5%', trend: 'up' },
@@ -63,7 +61,6 @@ const SuperAdminDashboard = () => {
       ]);
     } catch (err) {
       setError('Failed to fetch data. Please try again.');
-      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
@@ -90,7 +87,6 @@ const SuperAdminDashboard = () => {
       ));
     } catch (err) {
       setError('Failed to update user status');
-      console.error('Error updating user status:', err);
     }
   };
 
@@ -98,17 +94,15 @@ const SuperAdminDashboard = () => {
   const updateRestaurantStatus = async (id, status) => {
     try {
       await axios.put(
-      `http://localhost:5000/api/restaurants/${id}`, // Changed from /status
-      { status }, // Just include status in the regular update
-      getConfig()
-    );
-      
+        `http://localhost:5000/api/restaurants/${id}`,
+        { status },
+        getConfig()
+      );
       setRestaurants(restaurants.map(r => 
         r._id === id ? { ...r, status } : r
       ));
     } catch (err) {
       setError('Failed to update restaurant status');
-      console.error('Error updating restaurant status:', err);
     }
   };
 
@@ -120,13 +114,11 @@ const SuperAdminDashboard = () => {
         { status },
         getConfig()
       );
-      
       setBookings(bookings.map(b => 
         b._id === id ? { ...b, status } : b
       ));
     } catch (err) {
       setError('Failed to update booking status');
-      console.error('Error updating booking status:', err);
     }
   };
 
@@ -155,7 +147,6 @@ const SuperAdminDashboard = () => {
 
       await axios.delete(endpoint, getConfig());
       
-      // Update state
       switch (type) {
         case 'user':
           setUsers(users.filter(u => u._id !== id));
@@ -172,19 +163,21 @@ const SuperAdminDashboard = () => {
       }
     } catch (err) {
       setError(`Failed to delete ${type}`);
-      console.error(`Error deleting ${type}:`, err);
     }
   };
 
   // Create new restaurant
   const createNewRestaurant = async (restaurantData) => {
     try {
+      const payload = {
+        ...restaurantData,
+        password: restaurantData.password || "changeme123" // Always send password!
+      };
       const response = await axios.post(
-        'http://localhost:5000/api/auth/restaurants',
-        restaurantData,
+        'http://localhost:5000/api/admin/restaurants',
+        payload,
         getConfig()
       );
-      
       setRestaurants([...restaurants, response.data.restaurant]);
       return response.data;
     } catch (err) {
@@ -700,6 +693,7 @@ const SuperAdminDashboard = () => {
                     const newRestaurant = {
                       name: "New Restaurant",
                       email: "new@restaurant.com",
+                      password: "changeme123", // <-- REQUIRED for backend!
                       address: "123 Main St",
                       phone: "123-456-7890",
                       cuisine: "International",

@@ -9,21 +9,16 @@ const BookingHistory = () => {
   useEffect(() => {
     const fetchBookingHistory = async () => {
       try {
-        const token = localStorage.getItem('token'); // Get JWT from localStorage
-
+        const token = localStorage.getItem('token');
         if (!token) {
           setError('You must be logged in to view bookings.');
           setLoading(false);
           return;
         }
-
         const res = await axios.get('http://localhost:5000/api/bookings/user', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        setBookings(res.data.data);
+        setBookings(res.data); // <-- FIXED: use res.data, not res.data.data
       } catch (err) {
         console.error('Error fetching booking history:', err);
         setError('Failed to fetch bookings. Please try again.');
@@ -31,7 +26,6 @@ const BookingHistory = () => {
         setLoading(false);
       }
     };
-
     fetchBookingHistory();
   }, []);
 

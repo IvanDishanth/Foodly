@@ -1,4 +1,4 @@
-import Booking from '../models/Booking.model.js';
+import Booking from "../models/Booking.model.js";
 
 // Create new booking
 export const createBooking = async (req, res) => {
@@ -31,8 +31,16 @@ export const createBooking = async (req, res) => {
   }
 };
 
-// Get bookings for logged-in user
-import Booking from "../models/booking.model.js";
+export const getUserBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ userId: req.user.id });
+    res.status(200).json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch user bookings" });
+  }
+};
+
+
 
 export const getAllBookings = async (req, res) => {
   try {

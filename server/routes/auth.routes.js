@@ -1,6 +1,6 @@
 import express from "express";
 import { register,registerRestaurant, loginUser , loginRestaurant } from '../controllers/auth.controller.js';
-import { protect, isRestaurant, superAdminOnly } from "../middleware/auth.middleware.js";
+import { protect, superAdminOnly } from "../middleware/auth.middleware.js";
 
 
 

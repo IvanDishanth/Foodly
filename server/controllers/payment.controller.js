@@ -1,5 +1,7 @@
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
+// controllers/payment.controller.js
+import Payment from '../models/Payment.model.js';
 
 dotenv.config();
 
@@ -34,5 +36,18 @@ export const createPaymentIntent = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+
+
+
+export const getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.find().populate('restaurant');
+    res.status(200).json(payments);
+  } catch (err) {
+    console.error('Error fetching payments:', err);
+    res.status(500).json({ message: 'Failed to fetch payments' });
   }
 };

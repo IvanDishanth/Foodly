@@ -32,6 +32,7 @@ function UserProfileEditModal({ user, onClose, onSave, isLoading }) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
+  
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];

@@ -15,6 +15,13 @@ import imageRoutes from "./routes/image.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
 
+
+
+
+
+
+
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -65,11 +72,11 @@ app.get("/test-env", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api", adminRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/image", imageRoutes);
-app.use("/api/payment", paymentRoutes);
-app.use("/api/bookings", bookingRouter);
+app.use('/api/admin/payments', paymentRoutes);
+app.use('/api/bookings', bookingRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
