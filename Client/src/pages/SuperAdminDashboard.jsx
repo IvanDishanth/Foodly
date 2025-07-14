@@ -23,6 +23,59 @@ const SuperAdminDashboard = () => {
     { title: 'Total Revenue', value: '$0', change: '+0%', trend: 'up' }
   ]);
 
+     const [showAddRestaurant, setShowAddRestaurant] = useState(false);
+  const [newRestaurant, setNewRestaurant] = useState({
+    name: '',
+    email: '',
+    password: '',
+    address: '',
+    phone: '',
+    cuisine: '',
+    status: 'pending'
+  });
+
+  // ...existing code...
+
+  // Add these handlers
+  const handleRestaurantInput = (e) => {
+    const { name, value } = e.target;
+    setNewRestaurant(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleAddRestaurant = async (e) => {
+    e.preventDefault();
+    if (
+      !newRestaurant.name ||
+      !newRestaurant.email ||
+      !newRestaurant.password ||
+      !newRestaurant.address ||
+      !newRestaurant.phone ||
+      !newRestaurant.cuisine
+    ) {
+      setError("Please fill all required fields.");
+      return;
+    }
+    try {
+      await createNewRestaurant(newRestaurant);
+      setShowAddRestaurant(false);
+      setNewRestaurant({
+        name: '',
+        email: '',
+        password: '',
+        address: '',
+        phone: '',
+        cuisine: '',
+        status: 'pending'
+      });
+    } catch (err) {
+      setError("Failed to create restaurant. Please check your input.");
+    }
+  };
+
+
   // Get auth token and config
   const getConfig = () => {
     const token = localStorage.getItem('token');
@@ -589,6 +642,37 @@ const SuperAdminDashboard = () => {
     }
   };
 
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <div className="flex h-screen bg-gray-900">
       {/* Sidebar */}
@@ -681,7 +765,7 @@ const SuperAdminDashboard = () => {
         </header>
 
         {/* Content Area */}
-        <main className="p-6">
+        {/* <main className="p-6">
           {activeTab !== 'dashboard' && (
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800 capitalize">{activeTab}</h2>
@@ -708,7 +792,131 @@ const SuperAdminDashboard = () => {
             </div>
           )}
           {renderContent()}
+        </main> */}
+
+
+
+
+  // ...existing code...
+
+
+    <div className="flex h-screen bg-gray-900">
+      {/* Sidebar */}
+      {/* ...existing sidebar code... */}
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        {/* Top Navigation */}
+        {/* ...existing header code... */}
+
+        {/* Content Area */}
+        <main className="p-6">
+          {activeTab !== 'dashboard' && (
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 capitalize">{activeTab}</h2>
+              {activeTab === 'restaurants' && (
+                <button 
+                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-indigo-700 flex items-center"
+                  onClick={() => setShowAddRestaurant(true)}
+                >
+                  <span>Add New Restaurant</span>
+                </button>
+              )}
+            </div>
+          )}
+          {renderContent()}
         </main>
+        {/* Add this modal just before closing Main Content */}
+        {showAddRestaurant && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 w-full max-w-md shadow-lg relative">
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowAddRestaurant(false)}
+              >
+                &times;
+              </button>
+              <h3 className="text-xl font-bold mb-4">Add New Restaurant</h3>
+              <form onSubmit={handleAddRestaurant} className="space-y-4">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  value={newRestaurant.name}
+                  onChange={handleRestaurantInput}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={newRestaurant.email}
+                  onChange={handleRestaurantInput}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={newRestaurant.password}
+                  onChange={handleRestaurantInput}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Address"
+                  value={newRestaurant.address}
+                  onChange={handleRestaurantInput}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <input
+                  type="text"
+                  name="phone"
+                  placeholder="Phone"
+                  value={newRestaurant.phone}
+                  onChange={handleRestaurantInput}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <input
+                  type="text"
+                  name="cuisine"
+                  placeholder="Cuisine"
+                  value={newRestaurant.cuisine}
+                  onChange={handleRestaurantInput}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <button
+                  type="submit"
+                  className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                >
+                  Add Restaurant
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+
+
+// ...existing NavItem and export...
+
+
+
+
+
+
+
+
+
+
       </div>
     </div>
   );
