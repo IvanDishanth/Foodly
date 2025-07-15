@@ -539,7 +539,7 @@ const SuperAdminDashboard = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Restaurant</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Restaurant ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -548,41 +548,55 @@ const SuperAdminDashboard = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {payments.map(payment => (
-                    <tr key={payment._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        #{payment._id.slice(-6)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {payment.restaurant?.name || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(payment.date).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${payment.amount.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          payment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {payment.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => deleteItem('payment', payment._id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+    <tr key={payment._id} className="hover:bg-gray-50">
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+        #{payment._id.slice(-6)}
+      </td>
+
+      {/* Show restaurant name if populated, else show restaurant ObjectId */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {payment.restaurant?.name || payment.restaurant || 'N/A'}
+      </td>
+
+      {/* Use payment.timestamp or payment.createdAt for date */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {payment.timestamp
+          ? new Date(payment.timestamp).toLocaleDateString()
+          : payment.createdAt
+          ? new Date(payment.createdAt).toLocaleDateString()
+          : 'N/A'}
+      </td>
+
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {typeof payment.amount === 'number' ? payment.amount.toFixed(2) : payment.amount}
+      </td>
+
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            payment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+          }`}
+        >
+          {payment.status}
+        </span>
+      </td>
+
+      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <button
+          onClick={() => deleteItem('payment', payment._id)}
+          className="text-red-600 hover:text-red-900"
+        >
+          Delete
+        </button>
+      </td>
+    </tr>
+  ))}
                 </tbody>
               </table>
             </div>
           </div>
         );
+
       case 'settings':
         return (
           <div className="bg-white rounded-xl shadow-sm p-6">

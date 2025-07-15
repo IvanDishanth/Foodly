@@ -1,121 +1,198 @@
 import React, { useState } from 'react';
-import UserProfileEditModal from "./UserProfileEditModal.jsx";
 import axios from 'axios';
 
 const FALLBACK_AVATAR = 'https://placehold.co/150x150?text=No+Image';
 
+function UserProfileEditModal({ user, onClose, onSave, isLoading }) {
+  const [formData, setFormData] = useState({
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    profilePic: user.profilePic
+  });
+  const [profilePicPreview, setProfilePicPreview] = useState(user.profilePic);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-// Axios instance
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  timeout: 10000, 
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setFormData(prev => ({ ...prev, profilePic: file }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({
+      ...formData,
+      profilePic: formData.profilePic
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-gray-800">Edit Profile</h3>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center mb-4">
+              <img 
+                src={profilePicPreview || FALLBACK_AVATAR} 
+                alt="Profile Preview" 
+                className="w-24 h-24 rounded-full object-cover mb-3 border-2 border-yellow-500"
+              />
+              <label className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 cursor-pointer">
+                Change Photo
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                disabled={isLoading}
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function UserProfile({ user, setUser }) {
-  if (!user) {
-    return <div className="p-4">Loading profile...</div>;
-  }
- 
   const [showEditModal, setShowEditModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSave = async (updatedUserData) => {
+  if (!user) {
+    return <div className="p-4">Loading profile...</div>;
+  }
+
+  const handleSave = async (updatedData) => {
     setIsLoading(true);
     setError(null);
-
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error("Authentication token missing.");
 
-      const payload = {
-        name: updatedUserData.name?.trim() || '',
-        email: updatedUserData.email?.trim() || '',
-      };
-
-      if (updatedUserData.phone?.trim()) {
-        payload.phone = updatedUserData.phone.trim();
-      }
-
-     if (
-  updatedUserData.profilePic &&
-  typeof updatedUserData.profilePic === "string" &&
-  !updatedUserData.profilePic.includes("placeholder")
-) {
-  payload.profilePic = updatedUserData.profilePic;
-}
-
-
-      console.log("🚀 Payload being sent:", payload);
-
-      // Local validation
-      if (!payload.name || !payload.email) {
-        throw new Error("Name and Email are required");
-      }
-      if (!/^\S+@\S+\.\S+$/.test(payload.email)) {
-        throw new Error("Please enter a valid email address");
-      }
-
-      const config = {
+      let payload;
+      let config = {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         }
       };
 
-      const isFileUpload = payload.profilePic instanceof File;
-
-      if (isFileUpload) {
-        const formData = new FormData();
-        formData.append("name", payload.name);
-        formData.append("email", payload.email);
-        if (payload.phone) formData.append("phone", payload.phone);
-        formData.append("profilePic", payload.profilePic);
-
-        config.headers["Content-Type"] = "multipart/form-data";
-
-        const response = await api.put("/user", formData, config);
-        handleSuccess(response.data);
-      } else {
-        if (payload.profilePic && typeof payload.profilePic !== 'string') {
-          delete payload.profilePic;
+      if (updatedData.profilePic instanceof File) {
+        payload = new FormData();
+        payload.append("name", updatedData.name?.trim() || '');
+        payload.append("email", updatedData.email?.trim() || '');
+        if (updatedData.phone?.trim()) {
+          payload.append("phone", updatedData.phone.trim());
         }
-
-        const response = await api.put("/user", payload, config);
-        handleSuccess(response.data);
+        payload.append("profilePic", updatedData.profilePic);
+        config.headers["Content-Type"] = "multipart/form-data";
+      } else {
+        payload = {
+          name: updatedData.name?.trim() || '',
+          email: updatedData.email?.trim() || '',
+        };
+        if (updatedData.phone?.trim()) {
+          payload.phone = updatedData.phone.trim();
+        }
+        if (
+          updatedData.profilePic &&
+          typeof updatedData.profilePic === "string" &&
+          !updatedData.profilePic.includes("placeholder")
+        ) {
+          payload.profilePic = updatedData.profilePic;
+        }
       }
+
+      const response = await axios.put(
+        'http://localhost:5000/api/user/profile',
+        payload,
+        config
+      );
+      setUser(response.data.user);
+      setShowEditModal(false);
+      setError(null);
     } catch (error) {
-      console.error("❌ Update error:", error.response?.data || error.message);
-      handleError(error);
+      setError(error.response?.data?.message || "Profile update error");
+      console.error("Profile update error:", error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSuccess = (updatedUser) => {
-    setUser(updatedUser);
-    setShowEditModal(false);
-    alert("Profile updated successfully!"); // Replace with toast if needed
-  };
-
-  const handleError = (error) => {
-    let message = 'Failed to update profile';
-
-    if (error.response?.data?.message) {
-      message = error.response.data.message;
-    } else if (error.response?.data?.errors) {
-      message = Object.values(error.response.data.errors)
-        .map(err => err.message || err)
-        .join('\n');
-    } else if (error.message) {
-      message = error.message;
-    }
-
-    setError(message);
-    alert(message); // Replace with toast if desired
   };
 
   return (
@@ -124,11 +201,10 @@ function UserProfile({ user, setUser }) {
         {/* Profile Picture */}
         <div className="relative mb-4">
           <img
-  src={user?.profilePic || "https://via.placeholder.com/150"}
-  alt="Profile"
-  className="w-32 h-32 rounded-full"
-/>
-
+            src={user?.profilePic || FALLBACK_AVATAR}
+            alt="Profile"
+            className="w-32 h-32 rounded-full"
+          />
           <button 
             className="absolute bottom-0 right-0 bg-yellow-500 text-white rounded-full p-2 hover:bg-yellow-600"
             onClick={() => setShowEditModal(true)}

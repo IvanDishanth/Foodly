@@ -19,6 +19,10 @@ function RestaurantAdminDashboard() {
     const [tables, setTables] = useState([]);          
   const [foodItems, setFoodItems] = useState([]);   
 
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [restaurant, setRestaurant] = useState(null); // must contain _id
+
+
   useEffect(() => {
     const fetchRestaurantData = async () => {
       try {
@@ -43,6 +47,14 @@ function RestaurantAdminDashboard() {
 
     fetchRestaurantData();
   }, [navigate]);
+
+  useEffect(() => {
+    async function fetchTables() {
+      const res = await axios.get('/api/tables');
+      setTables(res.data);
+    }
+    fetchTables();
+  }, []);
 
 
   const [activeDashboardTab, setActiveDashboardTab] = useState('Home');
@@ -88,11 +100,24 @@ function RestaurantAdminDashboard() {
             <h3 className="text-xl text-gray-300 mb-4">Welcome to your dashboard, {restaurantData.name}!</h3>
             <p className="text-gray-400 mb-6 text-center">Here you can manage your restaurant's operations and finances.</p>
             <button
-              onClick={() => setShowPaymentToAdminModal(true)}
+              onClick={() => setShowPaymentModal(true)}
               className="px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
             >
               Make Payment to Superadmin
+            
             </button>
+
+{showPaymentModal && restaurantData?._id && (
+  <RestaurantPaymentToAdminModal
+    restaurantId={restaurantData._id}
+    onClose={() => setShowPaymentModal(false)}
+    onPaymentSubmit={(payment) => {
+      console.log('✅ New payment recorded:', payment);
+    }}
+  />
+)}
+
+
           </div>
         );
       case 'Update':

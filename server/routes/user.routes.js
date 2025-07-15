@@ -33,17 +33,19 @@ const upload = multer({
 
 const router = express.Router();
 
-// Remove duplicate routes and organize properly
-router.route('/')
-  .put(protect, upload.single('profilePic'), updateUserProfile)
-  .delete(protect, deleteUser);
-
-  
-
+// Get user profile
 router.get("/", protect, getUserProfile);
 
+// Update user profile
+router.put("/profile", protect, upload.single('profilePic'), updateUserProfile);
+
+// Delete user profile
+router.delete("/profile", protect, deleteUser);
+
+// Logout
 router.post("/logout", protect, logoutUser);
 
+// Get all restaurants for user
 router.get("/restaurants", getAllRestaurantsForUser);
 
 

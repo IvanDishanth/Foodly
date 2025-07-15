@@ -77,6 +77,8 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/image", imageRoutes);
 app.use('/api/admin/payments', paymentRoutes);
 app.use('/api/bookings', bookingRouter);
+app.use('/api/payments', paymentRoutes);
+
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
