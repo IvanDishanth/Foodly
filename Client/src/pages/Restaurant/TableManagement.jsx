@@ -1,39 +1,75 @@
-// src/components/TableManagement.jsx (No Firebase)
-import React, { useState, useEffect } from 'react';
+// src/components/TableManagement.jsx (With Firebase)
+// Note: This version includes the integration with the backend API using axios for CRUD operations.
+
+import React, { useState, useEffect } from "react";
+import api from "../../api/axios";
 
 // Tables are now passed as props from parent (RestaurantAdminDashboard)
 function TableManagement({ tables, setTables }) {
   const [showAddTableModal, setShowAddTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
 
-  const handleToggleAvailability = (id) => {
-    setTables(tables.map(table =>
-      table.id === id ? { ...table, isAvailable: !table.isAvailable } : table
-    ));
-    console.log(`Table ${id} availability toggled (Simulated).`);
-  };
-
-  const handleAddOrUpdateTable = (newTableData) => {
-    if (editingTable) {
-      setTables(tables.map(table =>
-        table.id === editingTable.id ? { ...table, ...newTableData, image: newTableData.imageFile ? URL.createObjectURL(newTableData.imageFile) : table.image } : table
-      ));
-      console.log("Updated Table (Simulated):", newTableData);
-    } else {
-      const newId = Math.max(...tables.map(t => t.id), 0) + 1; // Generate unique ID
-      setTables([...tables, { ...newTableData, id: newId, isAvailable: true, image: newTableData.imageFile ? URL.createObjectURL(newTableData.imageFile) : 'https://placehold.co/150x100/888888/FFFFFF?text=New+Table' }]);
-      console.log("Added New Table (Simulated):", newTableData);
+  // Fetch tables from backend on mount
+  useEffect(() => {
+    async function fetchTables() {
+      try {
+        const res = await api.get("/tables");
+        setTables(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error("Error fetching tables:", err);
+      }
     }
-    setEditingTable(null);
-    setShowAddTableModal(false);
-    alert('Table data saved! (Simulated, no persistence)');
+    fetchTables();
+  }, [setTables]);
+
+  // Add or update table
+  const handleAddOrUpdateTable = async (formData) => {
+    try {
+      if (editingTable) {
+        // Update
+        const res = await api.put(
+          `/tables/${editingTable._id}`,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setTables(tables.map(t => t._id === editingTable._id ? res.data : t));
+      } else {
+        // Add
+        const res = await api.post(
+          "/tables",
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setTables([...tables, res.data]);
+      }
+      setEditingTable(null);
+      setShowAddTableModal(false);
+    } catch (err) {
+      console.error("Error saving table:", err);
+    }
   };
 
-  const handleDeleteTable = (id) => {
-    if (window.confirm("Are you sure you want to delete this table? (Simulated)")) { // Use custom modal in real app
-      setTables(tables.filter(table => table.id !== id));
-      console.log(`Table ${id} deleted (Simulated).`);
-      alert('Table deleted! (Simulated, no persistence)');
+  // Delete table
+  const handleDeleteTable = async (id) => {
+    try {
+      await api.delete(`/tables/${id}`);
+      setTables(tables.filter(t => t._id !== id));
+    } catch (err) {
+      console.error("Error deleting table:", err);
+    }
+  };
+
+  // Toggle table availability
+  const handleToggleAvailability = async (id) => {
+    const table = tables.find(t => t._id === id);
+    try {
+      const res = await api.put(
+        `/tables/${id}`,
+        { isAvailable: !table.isAvailable }
+      );
+      setTables(tables.map(t => t._id === id ? res.data : t));
+    } catch (err) {
+      console.error("Error updating table:", err);
     }
   };
 
@@ -49,8 +85,8 @@ function TableManagement({ tables, setTables }) {
       </button>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tables.map(table => (
-          <div key={table.id} className="bg-gray-700 rounded-lg p-4 shadow-md border border-gray-600 flex flex-col items-center">
+        {(Array.isArray(tables) ? tables : []).map(table => (
+          <div key={table._id || table.id} className="bg-gray-700 rounded-lg p-4 shadow-md border border-gray-600 flex flex-col items-center">
             <img src={table.image} alt={table.name} className="w-full h-32 object-cover rounded-md mb-3" />
             <h4 className="text-xl font-semibold text-white mb-1">{table.name}</h4>
             <p className="text-gray-300 text-sm mb-2">Capacity: {table.capacity}</p>
@@ -59,7 +95,7 @@ function TableManagement({ tables, setTables }) {
             </p>
             <div className="flex space-x-2 w-full">
               <button
-                onClick={() => handleToggleAvailability(table.id)}
+                onClick={() => handleToggleAvailability(table._id || table.id)}
                 className={`flex-grow py-2 rounded-md transition-colors text-sm
                   ${table.isAvailable ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white`}
               >
@@ -72,7 +108,7 @@ function TableManagement({ tables, setTables }) {
                 Edit
               </button>
               <button
-                onClick={() => handleDeleteTable(table.id)}
+                onClick={() => handleDeleteTable(table._id || table.id)}
                 className="py-2 px-3 bg-red-700 hover:bg-red-800 text-white rounded-md transition-colors text-sm"
               >
                 Delete
@@ -116,7 +152,13 @@ function TableFormModal({ onClose, onSave, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ name, capacity: parseInt(capacity), imageFile });
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('capacity', capacity);
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    onSave(formData);
   };
 
   return (

@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Booking from "../models/Booking.model.js";
 import Restaurant from "../models/restaurant.model.js";
+import mongoose from "mongoose";
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -119,12 +120,19 @@ export const getAllRestaurants = async (req, res) => {
 // @route   GET /api/admin/restaurants/:id
 // @access  Admin
 export const getRestaurantById = async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ message: "Invalid restaurant ID" });
+  }
+
   try {
     const restaurant = await Restaurant.findById(req.params.id);
-    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
     res.status(200).json(restaurant);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Error fetching restaurant:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 // @desc    Get restaurant by admin ID
@@ -139,6 +147,20 @@ export const getRestaurantByAdmin = async (req, res) => {
     res.json(restaurant);
   } catch (err) {
     console.error('Error fetching restaurant:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+export const toggleRestaurantStatus = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.user.id);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+    restaurant.isOpen = !restaurant.isOpen;
+    await restaurant.save();
+    res.json(restaurant);
+  } catch (err) {
+    console.error('Error toggling restaurant status:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -219,21 +241,28 @@ export const changeRestaurantRole = async (req, res) => {
   }
 };
 
+// Toggle restaurant open/close status
 export const updateRestaurantStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-    if (!status) {
-      return res.status(400).json({ message: "Status is required" });
+    // Find the restaurant by the authenticated user's restaurantId
+    const restaurantId = req.user.restaurantId || req.body.restaurantId;
+    if (!restaurantId) {
+      return res.status(400).json({ message: "Restaurant ID not found in token." });
     }
-    const restaurant = await Restaurant.findById(req.params.id);
+
+    // Fetch current status
+    const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) {
-      return res.status(404).json({ message: "Restaurant not found" });
+      return res.status(404).json({ message: "Restaurant not found." });
     }
-    restaurant.status = status;
+
+    // Toggle isOpen status
+    restaurant.isOpen = !restaurant.isOpen;
     await restaurant.save();
-    res.status(200).json({ message: "Restaurant status updated", restaurant });
+
+    res.status(200).json(restaurant);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Error updating restaurant status.", error });
   }
 };
 // @desc    Get all bookings

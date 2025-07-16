@@ -22,41 +22,37 @@ function UserDashboard() {
   const [foodCategory, setFoodCategory] = useState('');
   const [districtFilter, setDistrictFilter] = useState('');
 
- useEffect(() => {
-  const fetchUserProfile = async () => {
-    try {
-      const response = await API.get("/user");
-      setUser(response.data);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      if (error.response?.status === 401) {
-        localStorage.removeItem('token');
-        navigate('/login');
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await API.get("/user");
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
       }
-    }
-  };
+    };
+    fetchUserProfile();
+  }, [navigate]);
 
-  const fetchRestaurants = async () => {
-  setLoading(true);
-  try {
-    // Use a public endpoint for users
-    const response = await axios.get("http://localhost:5000/api/user/restaurants");
-    setRestaurants(response.data);
-  } catch (err) {
-    setError("Failed to fetch restaurants");
-    console.error("Error fetching restaurants:", err);
-    if (err.response?.status === 401 || err.response?.status === 403) {
-      localStorage.removeItem('token');
-      navigate('/login');
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
-  fetchUserProfile();
-  fetchRestaurants();
-}, [navigate]);
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("http://localhost:5000/api/user/restaurants");
+        setRestaurants(response.data);
+      } catch (err) {
+        setError("Failed to fetch restaurants");
+        console.error("Error fetching restaurants:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRestaurants();
+  }, []);
   const handleRestaurantClick = (id) => {
     navigate(`/restaurant/${id}`);
   };
@@ -187,34 +183,6 @@ function UserDashboard() {
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Trending Section */}
-              <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">Top Trending Spots</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {restaurants.filter(r => r.trending).map(restaurant => (
-                    <RestaurantCard
-                      key={restaurant._id}
-                      restaurant={restaurant}
-                      onClick={() => handleRestaurantClick(restaurant._id)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Newly Opened Section */}
-              <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">Newly Opened Places</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {restaurants.filter(r => r.name && r.name.toLowerCase().includes('new')).map(restaurant => (
-                    <RestaurantCard
-                      key={restaurant._id}
-                      restaurant={restaurant}
-                      onClick={() => handleRestaurantClick(restaurant._id)}
-                    />
-                  ))}
-                </div>
               </div>
             </>
           ) : activeTab === 'Profile' ? (

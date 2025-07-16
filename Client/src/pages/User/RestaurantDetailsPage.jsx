@@ -1,48 +1,49 @@
 // src/pages/RestaurantDetailsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import FoodDisplay from "./FoodDisplay.jsx";
 import TableDisplay from "./TableDisplay.jsx";
 import BookingFormModal from "./BookingFormModal.jsx";
 import Footer from '../../components/Footer';
+import api from '../../api/axios';
 
 function RestaurantDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Details');
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [restaurant, setRestaurant] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Mock restaurant data - in a real app, this would come from an API
-  const restaurant = {
-    id: 1,
-    name: 'Sky High Sips',
-    description: 'A rooftop restaurant with panoramic views of the city, specializing in international cuisine and craft cocktails.',
-    cuisine: 'International',
-    district: 'Colombo',
-    address: '123 High Street, Colombo 01',
-    phone: '0112345678',
-    isOpen: true,
-    openingHours: '10:00 AM - 11:00 PM',
-    profilePic: 'https://placehold.co/400x300/FFD700/000000?text=Sky+High+Sips',
-    bannerImage: 'https://placehold.co/1200x400/888888/FFFFFF?text=Sky+High+Sips+Banner',
-    rating: 4.5,
-    tables: [
-      { id: 1, name: 'Window Table', capacity: 4, isAvailable: true, description: 'Beautiful city view' },
-      { id: 2, name: 'Booth', capacity: 6, isAvailable: false, description: 'Private booth' },
-      { id: 3, name: 'Patio Table', capacity: 2, isAvailable: true, description: 'Outdoor seating' },
-    ],
-    foodItems: [
-      { id: 1, name: 'Biryani Special', price: 15.99, description: 'Fragrant basmati rice with mixed meats and spices', isAvailable: true, image: 'https://placehold.co/150x100/FFD700/000000?text=Biryani' },
-      { id: 2, name: 'Chicken Curry', price: 12.50, description: 'Traditional Sri Lankan chicken curry with rice', isAvailable: true, image: 'https://placehold.co/150x100/FF4500/FFFFFF?text=Curry' },
-      { id: 3, name: 'Vegetable Dosa', price: 8.00, description: 'South Indian crispy crepe with vegetable filling', isAvailable: false, image: 'https://placehold.co/150x100/32CD32/FFFFFF?text=Dosa' },
-    ]
-  };
+  useEffect(() => {
+    if (!id) return; // Prevent fetch if id is undefined
+    const fetchRestaurantDetails = async () => {
+      try {
+        const res = await api.get(`/user/restaurants/${id}`);
+        setRestaurant(res.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch restaurant details.');
+        setLoading(false);
+      }
+    };
+    fetchRestaurantDetails();
+  }, [id]);
 
   const handleBookingSubmit = (bookingData) => {
     console.log('Booking submitted:', bookingData);
     alert('Booking request sent successfully! The restaurant will confirm your reservation shortly.');
     setShowBookingModal(false);
   };
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 mt-10">{error}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -144,8 +145,8 @@ function RestaurantDetailsPage() {
               </div>
             )}
 
-            {activeTab === 'Food' && <FoodDisplay foods={restaurant.foodItems} />}
-            {activeTab === 'Tables' && <TableDisplay tables={restaurant.tables} />}
+            {activeTab === 'Food' && <FoodDisplay foods={restaurant.foodItems || []} />}
+            {activeTab === 'Tables' && <TableDisplay tables={restaurant.tables || []} />}
           </div>
         </div>
       </div>

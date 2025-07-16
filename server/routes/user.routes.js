@@ -5,13 +5,11 @@ import {
   deleteUser,
   logoutUser,
   getAllRestaurantsForUser,
+  getRestaurantDetailsForUser,
 } from "../controllers/user.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 import multer from 'multer';
-
-
-// In user.routes.js
-import { authenticate, verifyToken } from "../middleware/auth.js";
+import { getRestaurantById } from "../controllers/admin.controller.js";
 
 
 // Configure multer
@@ -47,6 +45,7 @@ router.post("/logout", protect, logoutUser);
 
 // Get all restaurants for user
 router.get("/restaurants", getAllRestaurantsForUser);
+router.get("/restaurants/:id", getRestaurantDetailsForUser);
 
 
 // Add test route for debugging

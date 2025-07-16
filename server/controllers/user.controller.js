@@ -100,7 +100,7 @@ export const logoutUser = (req, res) => {
 // @access  Public or Private (add protect if needed)
 export const getAllRestaurantsForUser = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find();
+    const restaurants = await Restaurant.find({ isOpen: true });
     res.status(200).json(restaurants);
   } catch (error) {
     console.error(error);
@@ -109,3 +109,18 @@ export const getAllRestaurantsForUser = async (req, res) => {
 };
 
 
+export const getRestaurantDetailsForUser = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+    const foods = await Food.find({ restaurant: req.params.id });
+    const tables = await Table.find({ restaurant: req.params.id });
+
+    res.status(200).json({ ...restaurant.toObject(), foods, tables });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

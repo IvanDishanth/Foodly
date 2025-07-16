@@ -1,6 +1,7 @@
 // src/pages/RestaurantAdminDashboard.jsx (No Firebase)
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import RestaurantProfileEditForm from "./RestaurantProfileEditForm.jsx";
 import TableManagement from "./TableManagement.jsx";
@@ -16,45 +17,39 @@ function RestaurantAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-    const [tables, setTables] = useState([]);          
-  const [foodItems, setFoodItems] = useState([]);   
+    const [tables, setTables] = useState([]);
+    const [foodItems, setFoodItems] = useState([]);
 
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [restaurant, setRestaurant] = useState(null); // must contain _id
+    const [restaurant, setRestaurant] = useState(null); // must contain _id
 
+    useEffect(() => {
+        const fetchRestaurantData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
 
-  useEffect(() => {
-    const fetchRestaurantData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/login');
-          return;
-        }
+                const response = await axios.get('http://localhost:5000/api/admin/restaurant', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setRestaurantData(response.data);
+                // Initialize tables and foodItems from the fetched restaurant data
+                setTables(response.data.tables || []);
+                setFoodItems(response.data.foodItems || []);
+                setLoading(false);
+            } catch (err) {
+                setError('Failed to fetch restaurant data.');
+                setLoading(false);
+            }
+        };
 
-        const response = await axios.get('http://localhost:5000/api/admin/restaurant', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setRestaurantData(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch restaurant data.');
-        setLoading(false);
-      }
-    };
-
-    fetchRestaurantData();
-  }, [navigate]);
-
-  useEffect(() => {
-    async function fetchTables() {
-      const res = await axios.get('/api/tables');
-      setTables(res.data);
-    }
-    fetchTables();
-  }, []);
+        fetchRestaurantData();
+    }, [navigate]);
 
 
   const [activeDashboardTab, setActiveDashboardTab] = useState('Home');
@@ -91,6 +86,24 @@ function RestaurantAdminDashboard() {
     console.log("Bookings updated by admin:", updatedBookings);
   };
 
+const handleToggleStatus = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await api.put(
+      '/restaurant/status',
+      {}, // If you need to send data, put it here
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    setRestaurantData(res.data);
+  } catch (err) {
+    console.error("Error toggling restaurant status:", err);
+    alert('Failed to update status.');
+  }
+};
   // Render content based on active dashboard tab
   const renderDashboardContent = () => {
     switch (activeDashboardTab) {
@@ -242,14 +255,14 @@ function RestaurantAdminDashboard() {
           <button
             className={`px-8 py-3 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg
               ${restaurantData.isOpen ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-500'}`}
-            onClick={() => setRestaurantData(prev => ({ ...prev, isOpen: true }))}
+            onClick={handleToggleStatus}
           >
             Open
           </button>
           <button
             className={`px-8 py-3 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg
               ${!restaurantData.isOpen ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-red-500'}`}
-            onClick={() => setRestaurantData(prev => ({ ...prev, isOpen: false }))}
+            onClick={handleToggleStatus}
           >
             Close
           </button>

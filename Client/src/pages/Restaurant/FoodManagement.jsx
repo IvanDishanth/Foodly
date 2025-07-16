@@ -1,39 +1,75 @@
-// src/components/FoodManagement.jsx (No Firebase)
+// src/components/FoodManagement.jsx
 import React, { useState, useEffect } from 'react';
+import api from "../../api/axios";
 
 // Food items are now passed as props from parent (RestaurantAdminDashboard)
 function FoodManagement({ foodItems, setFoodItems }) {
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [editingFood, setEditingFood] = useState(null);
 
-  const handleToggleAvailability = (id) => {
-    setFoodItems(foodItems.map(item =>
-      item.id === id ? { ...item, isAvailable: !item.isAvailable } : item
-    ));
-    console.log(`Food item ${id} availability toggled (Simulated).`);
-  };
+  // Fetch foods from backend
+  useEffect(() => {
+    const fetchFoods = async () => {
+      try {
+        const res = await api.get('/foods');
+        setFoodItems(res.data);
+      } catch (err) {
+        console.error("Error fetching foods:", err);
+      }
+    };
+    fetchFoods();
+  }, [setFoodItems]);
 
-  const handleAddOrUpdateFood = (newFoodData) => {
-    if (editingFood) {
-      setFoodItems(foodItems.map(item =>
-        item.id === editingFood.id ? { ...item, ...newFoodData, image: newFoodData.imageFile ? URL.createObjectURL(newFoodData.imageFile) : item.image } : item
-      ));
-      console.log("Updated Food Item (Simulated):", newFoodData);
-    } else {
-      const newId = Math.max(...foodItems.map(i => i.id), 0) + 1; // Generate unique ID
-      setFoodItems([...foodItems, { ...newFoodData, id: newId, isAvailable: true, image: newFoodData.imageFile ? URL.createObjectURL(newFoodData.imageFile) : 'https://placehold.co/150x100/888888/FFFFFF?text=New+Food' }]);
-      console.log("Added New Food Item (Simulated):", newFoodData);
+  const handleToggleAvailability = async (id) => {
+    const food = foodItems.find(item => item._id === id);
+    try {
+      await api.put(`/foods/${id}`, {
+        ...food,
+        isAvailable: !food.isAvailable,
+      });
+      const res = await api.get('/foods');
+      setFoodItems(res.data);
+    } catch (err) {
+      alert("Error toggling availability");
+      console.error(err);
     }
-    setEditingFood(null);
-    setShowAddFoodModal(false);
-    alert('Food item data saved! (Simulated, no persistence)');
   };
 
-  const handleDeleteFood = (id) => {
-    if (window.confirm("Are you sure you want to delete this food item? (Simulated)")) { // Use custom modal in real app
-      setFoodItems(foodItems.filter(item => item.id !== id));
-      console.log(`Food item ${id} deleted (Simulated).`);
-      alert('Food item deleted! (Simulated, no persistence)');
+  // Add or update food
+  const handleAddOrUpdateFood = async (formData) => {
+    try {
+      if (editingFood) {
+        await api.put(`/foods/${editingFood._id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        await api.post('/foods', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+      // Refresh list
+      const res = await api.get('/foods');
+      setFoodItems(res.data);
+      setEditingFood(null);
+      setShowAddFoodModal(false);
+    } catch (err) {
+      alert("Error saving food item");
+      console.error(err);
+    }
+  };
+
+  // Delete food
+  const handleDeleteFood = async (id) => {
+    if (window.confirm("Are you sure you want to delete this food item?")) {
+      try {
+        await api.delete(`/foods/${id}`);
+        // Refresh list
+        const res = await api.get('/foods');
+        setFoodItems(res.data);
+      } catch (err) {
+        alert("Error deleting food item");
+        console.error(err);
+      }
     }
   };
 
@@ -50,7 +86,7 @@ function FoodManagement({ foodItems, setFoodItems }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {foodItems.map(item => (
-          <div key={item.id} className="bg-gray-700 rounded-lg p-4 shadow-md border border-gray-600 flex flex-col items-center">
+          <div key={item._id || item.id} className="bg-gray-700 rounded-lg p-4 shadow-md border border-gray-600 flex flex-col items-center">
             <img src={item.image} alt={item.name} className="w-full h-32 object-cover rounded-md mb-3" />
             <h4 className="text-xl font-semibold text-white mb-1">{item.name}</h4>
             <p className="text-gray-300 text-sm mb-2">Price: ${item.price.toFixed(2)}</p>
@@ -59,7 +95,7 @@ function FoodManagement({ foodItems, setFoodItems }) {
             </p>
             <div className="flex space-x-2 w-full">
               <button
-                onClick={() => handleToggleAvailability(item.id)}
+                onClick={() => handleToggleAvailability(item._id || item.id)}
                 className={`flex-grow py-2 rounded-md transition-colors text-sm
                   ${item.isAvailable ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white`}
               >
@@ -72,7 +108,7 @@ function FoodManagement({ foodItems, setFoodItems }) {
                 Edit
               </button>
               <button
-                onClick={() => handleDeleteFood(item.id)}
+                onClick={() => handleDeleteFood(item._id || item.id)}
                 className="py-2 px-3 bg-red-700 hover:bg-red-800 text-white rounded-md transition-colors text-sm"
               >
                 Delete
@@ -116,7 +152,13 @@ function FoodFormModal({ onClose, onSave, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ name, price: parseFloat(price), imageFile });
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('price', price);
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    onSave(formData);
   };
 
   return (

@@ -8,6 +8,7 @@ const restaurantSchema = new mongoose.Schema({
   phone: String,
   cuisine: String,
   admin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  isOpen: { type: Boolean, default: false },
   location: {
   
     type: {

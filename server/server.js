@@ -1,4 +1,3 @@
-
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
@@ -14,6 +13,9 @@ import feedbackRoutes from "./routes/feedback.routes.js";
 import imageRoutes from "./routes/image.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
+import tableRoutes from './routes/tableRoutes.js';
+import foodRoutes from './routes/foodRoutes.js';
+import restaurantRoutes from "./routes/restaurant.routes.js";
 
 
 
@@ -71,6 +73,8 @@ app.get("/test-env", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use('/api/tables', tableRoutes);
+app.use('/api/foods', foodRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/feedback", feedbackRoutes);
@@ -78,6 +82,7 @@ app.use("/api/image", imageRoutes);
 app.use('/api/admin/payments', paymentRoutes);
 app.use('/api/bookings', bookingRouter);
 app.use('/api/payments', paymentRoutes);
+app.use("/api/restaurant", restaurantRoutes);
 
 
 app.use((err, req, res, next) => {

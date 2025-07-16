@@ -4,7 +4,7 @@ import React from 'react';
 function TableDisplay({ tables }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {tables.map(table => (
+      {tables && tables.map(table => (
         <div key={table.id} className="bg-gray-700 rounded-lg p-4 shadow-md border border-gray-600">
           <img 
             src={table.image} 

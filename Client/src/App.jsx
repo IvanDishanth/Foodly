@@ -49,7 +49,7 @@ function App() {
         <Route path="/UserDashboard" element={<UserDashboard />} />
         <Route path="/UserProfile" element={<UserProfile />} />
         <Route path="//Restaurant-Dashboard" element={<RDashboard />} />
-        <Route path="/restaurant/:restaurantId" element={<RestaurantDetailsPage />} />
+        <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
         <Route path="/RestaurantLoginForm" element={<RestaurantLoginForm />} />
         <Route path="/SuperAdminDashboard" element={<SuperAdminDashboard />} />
 
