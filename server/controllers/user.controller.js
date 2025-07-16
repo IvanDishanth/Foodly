@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import Restaurant from "../models/restaurant.model.js";
+import Food from "../models/foodModel.js";
+import Table from "../models/Table.model.js";
 import { v2 as cloudinary } from 'cloudinary';
 
 // @desc   Get user profile
@@ -100,7 +102,7 @@ export const logoutUser = (req, res) => {
 // @access  Public or Private (add protect if needed)
 export const getAllRestaurantsForUser = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find({ isOpen: true });
+    const restaurants = await Restaurant.find();
     res.status(200).json(restaurants);
   } catch (error) {
     console.error(error);
