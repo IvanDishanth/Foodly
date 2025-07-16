@@ -7,7 +7,7 @@ function FoodDisplay({ foods }) {
       <h3 className="text-2xl font-bold mb-6 text-gray-800">Menu</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {foods && foods.map(food => (
-          <div key={food.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+          <div key={food._id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
             <img 
               src={food.image} 
               alt={food.name} 

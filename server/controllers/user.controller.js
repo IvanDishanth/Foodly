@@ -110,6 +110,19 @@ export const getAllRestaurantsForUser = async (req, res) => {
   }
 };
 
+// @desc    Get all food items (for users)
+// @route   GET /api/user/foods
+// @access  Public
+export const getAllFoodsForUser = async (req, res) => {
+  try {
+    const foods = await Food.find();
+    res.status(200).json(foods);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 export const getRestaurantDetailsForUser = async (req, res) => {
   try {

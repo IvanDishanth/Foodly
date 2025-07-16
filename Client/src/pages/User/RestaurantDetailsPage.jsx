@@ -145,7 +145,7 @@ function RestaurantDetailsPage() {
               </div>
             )}
 
-            {activeTab === 'Food' && <FoodDisplay foods={restaurant.foodItems || []} />}
+            {activeTab === 'Food' && <FoodDisplay foods={restaurant.foods || []} />}
             {activeTab === 'Tables' && <TableDisplay tables={restaurant.tables || []} />}
           </div>
         </div>

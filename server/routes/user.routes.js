@@ -6,6 +6,7 @@ import {
   logoutUser,
   getAllRestaurantsForUser,
   getRestaurantDetailsForUser,
+  getAllFoodsForUser,
 } from "../controllers/user.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 import multer from 'multer';
@@ -46,6 +47,9 @@ router.post("/logout", protect, logoutUser);
 // Get all restaurants for user
 router.get("/restaurants", getAllRestaurantsForUser);
 router.get("/restaurants/:id", getRestaurantDetailsForUser);
+
+// Get all food items for user
+router.get("/foods", getAllFoodsForUser);
 
 
 // Add test route for debugging
