@@ -61,11 +61,13 @@ function UserDashboard() {
   };
 
   const filteredRestaurants = restaurants.filter(restaurant => {
-    const matchesSearch = restaurant.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch =
+      restaurant.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       restaurant.cuisine?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFoodCategory = !foodCategory || restaurant.cuisine === foodCategory;
-    const matchesDistrict = !districtFilter || restaurant.district === districtFilter;
-    return matchesSearch && matchesFoodCategory && matchesDistrict;
+    const matchesDistrict = districtFilter
+      ? (restaurant.district && restaurant.district.toLowerCase() === districtFilter.toLowerCase())
+      : true;
+    return matchesSearch && matchesDistrict;
   });
 
   return (
@@ -96,19 +98,19 @@ function UserDashboard() {
         <div className="sticky top-10 z-40 bg-gray-900 h-16 pt-4">
           <div className="flex justify-center mb-10">
             <button
-              className={`px-6 py-2 bg-gray-700 mx-2 rounded-t-lg ${activeTab === 'Dining Out' ? 'bg-[#FAB505] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
+              className={`px-6 py-2  mx-2 rounded-t-lg ${activeTab === 'Dining Out' ? 'bg-[#FAB505] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
               onClick={() => setActiveTab('Dining Out')}
             >
               Dining Out
             </button>
             <button
-              className={`px-6 py-2 bg-gray-700 mx-2 rounded-t-lg ${activeTab === 'Profile' ? 'bg-[#FAB505] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
+              className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Profile' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
               onClick={() => setActiveTab('Profile')}
             >
               Profile
             </button>
             <button
-              className={`px-6 py-2 bg-gray-700 mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-[#FAB505] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
+              className={`px-6 py-2  mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
               onClick={() => setActiveTab('Booking History')}
             >
               Booking History
@@ -138,7 +140,7 @@ function UserDashboard() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <button className="absolute right-48 top-30 text-gray-500 hover:text-yellow-600">
+                    <button className="absolute right-56 top-30 text-gray-500 hover:text-yellow-600">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
@@ -150,13 +152,13 @@ function UserDashboard() {
               {/* Dining Out Sub-tabs */}
               <div className="flex justify-center mb-6">
                 <button
-                  className={`px-6 py-2 bg-gray-700 mx-2 rounded-lg ${activeDiningTab === 'Food' ? 'bg-[#FAB505] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
+                  className={`px-6 py-2  mx-2 rounded-lg ${activeDiningTab === 'Food' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
                   onClick={() => setActiveDiningTab('Food')}
                 >
                   Food
                 </button>
                 <button
-                  className={`px-6 py-2 bg-gray-700 mx-2 rounded-lg ${activeDiningTab === 'Place' ? 'bg-[#FAB505] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
+                  className={`px-6 py-2  mx-2 rounded-lg ${activeDiningTab === 'Place' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
                   onClick={() => setActiveDiningTab('Place')}
                 >
                   Place
@@ -170,7 +172,11 @@ function UserDashboard() {
                   setActiveDiningTab('Place');
                 }} />
               ) : (
-                <DistrictPlaces />
+                <DistrictPlaces
+                  onDistrictSelect={district => {
+                    setDistrictFilter(district);
+                  }}
+                />
               )}
 
               {/* All Restaurants Section */}
