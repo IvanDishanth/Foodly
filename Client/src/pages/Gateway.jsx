@@ -70,7 +70,7 @@ const UserZone = () => {
   return (
     <section 
       ref={containerRef}
-      className="min-h-screen bg-[#FAB503] flex flex-col items-center justify-center p-8 relative overflow-hidden"
+      className="h-[500px] bg-[#FAB503] flex flex-col items-center justify-center p-8 relative overflow-hidden"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden opacity-10">

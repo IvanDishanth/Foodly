@@ -7,7 +7,7 @@ const RestaurantCard = ({ restaurant, onClick }) => {
     <motion.div 
       whileHover={{ y: -5 }}
       onClick={onClick}
-      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
+      className="bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
     >
       <div className="relative h-48 overflow-hidden">
         <img 
@@ -19,7 +19,7 @@ const RestaurantCard = ({ restaurant, onClick }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-between p-4">
           <div className="flex justify-between">
             {restaurant.isOpen && (
-              <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
+              <span className="bg-[#FAB503] text-black text-xs font-bold px-2 py-1 rounded-full flex items-center">
                 OPEN
               </span>
             )}
@@ -48,13 +48,13 @@ const RestaurantCard = ({ restaurant, onClick }) => {
       </div>
       
       <div className="p-4">
-        <div className="flex items-center text-gray-600 text-sm">
+        <div className="flex items-center text-gray-100 text-sm">
           <FiClock className="mr-1" size={14} />
           <span>{restaurant.openingHours || '10:00 AM - 10:00 PM'}</span>
         </div>
         
         <div className="mt-2">
-          <span className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+          <span className="inline-block bg-gray-700 text-[#FAB503] text-xs px-2 py-1 rounded">
             {restaurant.cuisine}
           </span>
         </div>

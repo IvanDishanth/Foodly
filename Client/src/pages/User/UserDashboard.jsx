@@ -8,6 +8,8 @@ import Footer from "../../components/Footer.jsx";
 import BookingHistory from "./BookingHistory.jsx";
 import axios from 'axios';
 import API from '../../api.js';
+import logo from "../../assets/Images/logo.png";
+import bg from "../../assets/Images/bg1.jpg";
 
 function UserDashboard() {
   const [user, setUser] = useState(null);
@@ -66,18 +68,13 @@ function UserDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans">
+    <div className="min-h-screen bg-gray-900 font-sans">
       {/* Header */}
-      <header className="bg-white shadow-md p-4">
+      <header className="bg-black shadow-md p-1 fixed top-0 left-0 right-0 ">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-yellow-600">Foodly</h1>
+          <img src={logo} alt="Foodly Logo" className="h-8" />
           <div className="flex items-center space-x-4">
-            <button
-              className="text-gray-700 hover:text-yellow-600"
-              onClick={() => navigate('/signin')}
-            >
-              Sign In
-            </button>
+            
             <button
               className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
               onClick={() => navigate('/login')}
@@ -87,30 +84,31 @@ function UserDashboard() {
             <img
               src={user?.profilePic || "https://via.placeholder.com/150"}
               alt="Profile"
-              className="w-10 h-10 rounded-full"
+               className="w-10 h-10 rounded-full border-2 border-yellow-600"
             />
           </div>
         </div>
       </header>
+    
 
       {/* Main Content */}
-      <main className="container mx-auto p-4">
+      <main className="container mx-auto p-10 mt-4">
         {/* Navigation Tabs */}
         <div className="flex justify-center mb-8">
           <button
-            className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Dining Out' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            className={`px-6 py-2 bg-gray-700 mx-2 rounded-t-lg ${activeTab === 'Dining Out' ? 'bg-[#FAB503] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
             onClick={() => setActiveTab('Dining Out')}
           >
             Dining Out
           </button>
           <button
-            className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Profile' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            className={`px-6 py-2 bg-gray-700 mx-2 rounded-t-lg ${activeTab === 'Profile' ? 'bg-[#FAB503] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
             onClick={() => setActiveTab('Profile')}
           >
             Profile
           </button>
           <button
-            className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            className={`px-6 py-2 bg-gray-700 mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-[#FAB503] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
             onClick={() => setActiveTab('Booking History')}
           >
             Booking History
@@ -118,37 +116,52 @@ function UserDashboard() {
         </div>
 
         {/* Content Area */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-gray-900  rounded-lg  p-4">
           {activeTab === 'Dining Out' ? (
             <>
               {/* Search Bar */}
               <div className="mb-6">
                 <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search for restaurants, cuisines or districts..."
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button className="absolute right-3 top-3 text-gray-500 hover:text-yellow-600">
+                  
+
+              
+                <div
+                className="bg-black p-6 md:p-8 h-[300px]  rounded-xl text-yellow-400  flex items-center justify-center"
+                style={{
+                  backgroundImage: `url(${bg})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+                >
+                <input
+                  type="text"
+                  placeholder="Search for restaurants, cuisines or districts..."
+                  className="w-[800px] p-1 bg-gray-700 border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                
+
+
+                  <button className="absolute right-48 top-30 text-gray-500 hover:text-yellow-600">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </button>
+                  </div>
                 </div>
               </div>
 
               {/* Dining Out Sub-tabs */}
               <div className="flex justify-center mb-6">
                 <button
-                  className={`px-6 py-2 mx-2 rounded-lg ${activeDiningTab === 'Food' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                  className={`px-6 py-2 bg-gray-700 mx-2 rounded-lg ${activeDiningTab === 'Food' ? 'bg-[#FAB504] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
                   onClick={() => setActiveDiningTab('Food')}
                 >
                   Food
                 </button>
                 <button
-                  className={`px-6 py-2 mx-2 rounded-lg ${activeDiningTab === 'Place' ? 'bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                  className={`px-6 py-2 bg-gray-700 mx-2 rounded-lg ${activeDiningTab === 'Place' ? 'bg-[#FAB504] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
                   onClick={() => setActiveDiningTab('Place')}
                 >
                   Place
@@ -167,7 +180,7 @@ function UserDashboard() {
 
               {/* All Restaurants Section */}
               <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">All Restaurants</h2>
+                <h2 className="text-2xl font-bold mb-4 text-gray-100">All Restaurants</h2>
                 {loading ? (
                   <div>Loading...</div>
                 ) : error ? (

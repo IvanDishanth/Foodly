@@ -38,7 +38,7 @@ function RestaurantDetailsPage() {
   };
 
   if (loading) {
-    return <div className="text-center mt-10">Loading...</div>;
+    return <div className="text-center text-[#FAB503] bg-gray-800 mt-10">Loading...</div>;
   }
 
   if (error) {
@@ -46,7 +46,7 @@ function RestaurantDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-700">
       {/* Banner */}
       <div className="relative h-64 w-full">
         <img 
@@ -61,14 +61,14 @@ function RestaurantDetailsPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 -mt-16 relative z-10">
-        <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="bg-gray-900 rounded-lg shadow-xl overflow-hidden">
           {/* Restaurant Header */}
           <div className="flex flex-col md:flex-row p-6">
             <div className="md:w-1/4 flex justify-center md:justify-start">
               <img 
                 src={restaurant.profilePic} 
                 alt={restaurant.name} 
-                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+                className="w-32 h-32 rounded-full object-cover border-4 border-[#FAB503]  shadow-md"
               />
             </div>
             <div className="md:w-3/4 mt-4 md:mt-0 md:pl-6">
@@ -115,7 +115,7 @@ function RestaurantDetailsPage() {
             {activeTab === 'Details' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-xl font-semibold mb-4 text-gray-800">About</h3>
+                  <h3 className="text-xl font-semibold mb-4 text-[#FAB503] ">About</h3>
                   <p className="text-gray-600 mb-6">{restaurant.description}</p>
                   
                   <div className="space-y-4">
@@ -137,9 +137,9 @@ function RestaurantDetailsPage() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Location</h3>
-                  <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-500">Map would be displayed here</p>
+                  <h3 className="text-xl font-semibold mb-4 text-[#FAB503] ">Location</h3>
+                  <div className="bg-gray-600 h-64 rounded-lg flex items-center justify-center">
+                    <p className="text-gray-100">Map would be displayed here</p>
                   </div>
                 </div>
               </div>

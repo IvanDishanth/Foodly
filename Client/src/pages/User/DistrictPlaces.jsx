@@ -12,7 +12,7 @@ function DistrictPlaces() {
       {districts.map((district, index) => (
         <div 
           key={index} 
-          className="bg-gray-700 rounded-lg p-4 text-center cursor-pointer hover:bg-yellow-600 hover:text-black transition-colors"
+          className="bg-gray-700 rounded-lg p-4 text-center cursor-pointer hover:bg-[#FAB504] hover:text-black transition-colors"
         >
           <h3 className="font-bold">{district}</h3>
         </div>
