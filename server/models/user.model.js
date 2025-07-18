@@ -17,28 +17,28 @@ const userSchema = new mongoose.Schema({
 
   role: {
     type: String,
-    enum: ['User', 'admin', 'superadmin', 'partner'],
+    enum: ['user', 'admin', 'superadmin', 'partner'],
     default: 'user',
   },
 }, { timestamps: true });
 
 // Password comparison method
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+// userSchema.methods.matchPassword = async function (enteredPassword) {
+//   return await bcrypt.compare(enteredPassword, this.password);
+// };
 
-// Pre-save middleware to hash password if modified
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+// // Pre-save middleware to hash password if modified
+// userSchema.pre('save', async function (next) {
+//   if (!this.isModified('password')) return next();
 
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt);
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 const User = mongoose.model('User', userSchema);
 export default User;
