@@ -77,17 +77,33 @@ function UserDashboard() {
         <div className="container mx-auto flex justify-between items-center h-full">
           <img src={logo} alt="Foodly Logo" className="h-8" />
           <div className="flex items-center space-x-4">
-            <button
-              className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
-              onClick={() => navigate('/login')}
-            >
-              Log In
-            </button>
-            <img
-              src={user?.profilePic || "https://via.placeholder.com/150"}
-              alt="Profile"
-              className="w-10 h-10 rounded-full border-2 border-yellow-600"
-            />
+            {user ? (
+              <>
+                <button
+                  className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+                  onClick={async () => {
+                    await API.post("/user/logout"); // <-- use this endpoint
+                    setUser(null);
+                    localStorage.removeItem('token');
+                    navigate('/login');
+                  }}
+                >
+                  Logout
+                </button>
+                <img
+                  src={user?.profilePic || "https://via.placeholder.com/150"}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full border-2 border-yellow-600"
+                />
+              </>
+            ) : (
+              <button
+                className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+                onClick={() => navigate('/login')}
+              >
+                Login
+              </button>
+            )}
           </div>
         </div>
       </header>

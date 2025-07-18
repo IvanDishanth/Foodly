@@ -42,7 +42,7 @@ router.put("/profile", protect, upload.single('profilePic'), updateUserProfile);
 router.delete("/profile", protect, deleteUser);
 
 // Logout
-router.post("/logout", protect, logoutUser);
+router.post("/logout", logoutUser);
 
 // Get all restaurants for user
 router.get("/restaurants", getAllRestaurantsForUser);
