@@ -367,7 +367,7 @@ const SuperAdminDashboard = () => {
                           onClick={() => toggleUserStatus(user._id)}
                           className={`mr-2 ${user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
                         >
-                          {user.status === 'active' ? 'Suspend' : 'Activate'}
+                          {user.status === 'active' ? 'Suspend' : ''}
                         </button>
                         <button
                           onClick={() => deleteItem('user', user._id)}
@@ -432,7 +432,7 @@ const SuperAdminDashboard = () => {
                               onClick={() => updateRestaurantStatus(restaurant._id, 'verified')}
                               className="text-green-600 hover:text-green-900"
                             >
-                              Approve
+                              
                             </button>
                           )}
                           {restaurant.status !== 'rejected' && (
@@ -440,7 +440,7 @@ const SuperAdminDashboard = () => {
                               onClick={() => updateRestaurantStatus(restaurant._id, 'rejected')}
                               className="text-red-600 hover:text-red-900"
                             >
-                              Reject
+                              
                             </button>
                           )}
                           <button
@@ -472,7 +472,7 @@ const SuperAdminDashboard = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guests</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -519,7 +519,7 @@ const SuperAdminDashboard = () => {
                               onClick={() => updateBookingStatus(booking._id, 'cancelled')}
                               className="text-red-600 hover:text-red-900"
                             >
-                              Cancel
+                              
                             </button>
                           )}
                         </div>
@@ -752,66 +752,26 @@ const SuperAdminDashboard = () => {
         <header className="bg-white shadow-sm p-4">
           <div className="flex justify-between items-center">
             <div className="relative w-full max-w-md">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiSearch className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
+             
+              
             </div>
             <div className="flex items-center space-x-4 ml-4">
-              <button className="p-2 rounded-full hover:bg-gray-100 relative">
-                <FiBell size={20} />
-                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-              </button>
+             
               <div className="flex items-center">
                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                   <FiUser className="text-gray-600" />
                 </div>
-                {sidebarOpen && <span className="ml-2 font-medium">Admin</span>}
+                {/* {sidebarOpen && <span className="ml-2 font-medium">Admin</span>} */}
               </div>
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
-        {/* <main className="p-6">
-          {activeTab !== 'dashboard' && (
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 capitalize">{activeTab}</h2>
-              {activeTab === 'restaurants' && (
-                <button 
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-indigo-700 flex items-center"
-                  onClick={() => {
-                    // Here you would typically open a modal to create a new restaurant
-                    const newRestaurant = {
-                      name: "New Restaurant",
-                      email: "new@restaurant.com",
-                      password: "changeme123", // <-- REQUIRED for backend!
-                      address: "123 Main St",
-                      phone: "123-456-7890",
-                      cuisine: "International",
-                      status: "pending"
-                    };
-                    createNewRestaurant(newRestaurant);
-                  }}
-                >
-                  <span>Add New Restaurant</span>
-                </button>
-              )}
-            </div>
-          )}
-          {renderContent()}
-        </main> */}
 
 
 
 
-  // ...existing code...
+ 
 
 
     <div className="flex h-screen bg-gray-900">
@@ -920,7 +880,7 @@ const SuperAdminDashboard = () => {
     </div>
 
 
-// ...existing NavItem and export...
+
 
 
 
