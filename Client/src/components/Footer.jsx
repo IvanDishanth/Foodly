@@ -36,7 +36,7 @@ const Footer = () => {
         </div>
 
         <p className="text-sm mt-8 text-white/80">
-          &copy; {new Date().getFullYear()} <span className="text-[#FAB503]">Fudly</span> — All rights reserved.
+          &copy; {new Date().getFullYear()} <span className="text-[#FAB503]">Foodly</span> — All rights reserved.
         </p>
       </div>
     </footer>

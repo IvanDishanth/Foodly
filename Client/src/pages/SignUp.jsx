@@ -103,11 +103,11 @@ const SignUpForm = () => {
               <span className="mx-4 text-[#D9D9D9]">OR</span>
               <hr className="w-full flex-grow border-[#D9D9D9]" />
             </div>
-            <button
+            {/* <button
               className="w-full h-[40px] rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#D9D9D9] text-gray-300 font-semibold hover:bg-[#FAB503] hover:border-[#FAB503] hover:text-black transition duration-300"
             >
               <span className="text-xl mr-2">G</span> Sign in with Google
-            </button>
+            </button> */}
             <p className="mt-8 text-center text-[#D9D9D9] text-sm">
               Already have an account?{' '}
               <a href="/login" className="text-[#FAB503] hover:underline">

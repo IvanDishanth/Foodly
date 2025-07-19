@@ -10,6 +10,7 @@ import axios from 'axios';
 import API from '../../api.js';
 import logo from "../../assets/Images/logo.png";
 import bg from "../../assets/Images/bg1.jpg";
+import { Link } from "react-router-dom";
 
 function UserDashboard() {
   const [user, setUser] = useState(null);
@@ -75,7 +76,9 @@ function UserDashboard() {
       {/* Header */}
       <header className="bg-black shadow-md p-1 fixed top-0 left-0 right-0 h-12 z-50">
         <div className="container mx-auto flex justify-between items-center h-full">
-          <img src={logo} alt="Foodly Logo" className="h-8" />
+         <Link to="/">
+                         <img src={logo} alt="Foodly Logo" className="h-8" />
+                     </Link>
           <div className="flex items-center space-x-4">
             {user ? (
               <>

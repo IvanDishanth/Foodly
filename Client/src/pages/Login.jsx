@@ -116,11 +116,11 @@ const LoginForm = () => {
               <hr className="flex-grow border-[#FAB503]" />
             </div>
 
-            <button
+            {/* <button
               className="w-full rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#FAB503] text-[#D9D9D9] font-semibold hover:bg-[#FAB503] hover:text-black transition duration-300 shadow-md hover:shadow-lg"
             >
               <span className="text-xl mr-2">G</span> Sign in with Google
-            </button>
+            </button> */}
 
             <p className="mt-8 text-center text-[#D9D9D9] text-sm">
               Don't have an account?{' '}
