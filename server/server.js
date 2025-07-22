@@ -83,7 +83,7 @@ app.use('/api/admin/payments', paymentRoutes);
 app.use('/api/bookings', bookingRouter);
 app.use('/api/payments', paymentRoutes);
 app.use("/api/restaurant", restaurantRoutes);
-
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

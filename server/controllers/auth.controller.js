@@ -102,44 +102,46 @@ export const registerRestaurant = async (req, res) => {
   }
 };
 
-
-
-
+// Restaurant Login
 export const loginRestaurant = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    const restaurant = await Restaurant.findOne({ email });
+    const { email, password } = req.body;
 
+    // Find restaurant by email
+    const restaurant = await Restaurant.findOne({ email });
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      return res.status(404).json({ message: "Restaurant not found" });
     }
 
+    // Compare password
     const isMatch = await bcrypt.compare(password, restaurant.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // ✅ Generate JWT with role = 'restaurant'
+    // Generate JWT token
     const token = jwt.sign(
-      { id: restaurant._id, role: 'restaurant' },
+      { id: restaurant._id, role: restaurant.role || "restaurant", name: restaurant.name, email: restaurant.email },
       process.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: "1d" }
     );
 
-    res.json({
-      success: true,
-      message: 'Login successful',
+    res.status(200).json({
+      message: "Login successful",
       token,
       restaurant: {
         id: restaurant._id,
         name: restaurant.name,
         email: restaurant.email,
-        role: 'restaurant',
+        role: restaurant.role || "restaurant",
       },
     });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
+
