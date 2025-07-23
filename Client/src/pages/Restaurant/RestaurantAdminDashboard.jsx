@@ -198,7 +198,7 @@ const handleToggleStatus = async () => {
   return (
     <div className="min-h-screen bg-black text-white font-sans relative">
       {/* Top Section - Foodly Logo, Restaurant Name, Profile/Edit Buttons */}
-      <header className="p-4 bg-black flex items-center justify-between border-b border-gray-800">
+       <header className="p-4 bg-black flex items-center justify-between border-b border-gray-800">
         <div className="flex items-center">
           <div className="text-yellow-500 text-3xl font-bold font-serif mr-4">Foodly</div>
           <h1 className="text-3xl font-semibold text-white">{restaurantData.name}</h1>
@@ -227,6 +227,21 @@ const handleToggleStatus = async () => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L15.232 5.232z" />
             </svg>
+          </button>
+          {/* Logout Button */}
+          <button
+            onClick={async () => {
+              try {
+                await api.post('/restaurant/logout');
+              } catch (err) {
+                // Optionally handle error
+              }
+              localStorage.removeItem('token');
+              navigate('/login');
+            }}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors font-semibold"
+          >
+            Logout
           </button>
         </div>
       </header>

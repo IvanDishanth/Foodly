@@ -4,13 +4,30 @@ import React, { useState, useEffect } from 'react';
 function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
   const [formData, setFormData] = useState({
     restaurantName: '',
-    address: { street: '', city: '', district: '' }, // Nested address
+    address: { street: '', city: '', district: '' },
     ownerName: '',
     phoneNumber: '',
     landPhoneNumber: '',
     registrationNumber: '',
-    cuisineType: '' // Added cuisineType to form data
+    cuisineType: ''
   });
+
+  // Ensure all formData fields are always defined strings to avoid controlled/uncontrolled input warning
+  useEffect(() => {
+    setFormData(prev => ({
+      restaurantName: prev.restaurantName || '',
+      address: {
+        street: prev.address?.street || '',
+        city: prev.address?.city || '',
+        district: prev.address?.district || '',
+      },
+      ownerName: prev.ownerName || '',
+      phoneNumber: prev.phoneNumber || '',
+      landPhoneNumber: prev.landPhoneNumber || '',
+      registrationNumber: prev.registrationNumber || '',
+      cuisineType: prev.cuisineType || '',
+    }));
+  }, []);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState(initialData.profilePicture || "https://placehold.co/100x100/555555/FFFFFF?text=Logo");
 
@@ -19,12 +36,16 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
     if (initialData) {
       setFormData({
         restaurantName: initialData.name || '',
-        address: initialData.address || { street: '', city: '', district: '' },
+        address: {
+          street: initialData.address?.street || '',
+          city: initialData.address?.city || '',
+          district: initialData.address?.district || '',
+        },
         ownerName: initialData.ownerName || '',
         phoneNumber: initialData.phoneNumber || '',
         landPhoneNumber: initialData.landPhoneNumber || '',
         registrationNumber: initialData.registrationNumber || '',
-        cuisineType: initialData.cuisineType || '' // Set initial cuisine type
+        cuisineType: initialData.cuisineType || ''
       });
       setProfilePicturePreview(initialData.profilePicture || "https://placehold.co/100x100/555555/FFFFFF?text=Logo");
     }
@@ -68,27 +89,22 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
       <div className="relative bg-gray-900 bg-opacity-90 rounded-[32px] p-6 sm:p-8 md:p-10 lg:p-12 shadow-xl w-full max-w-md mx-4 sm:mx-auto border border-gray-700">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-bold"
+          className="absolute top-4 right-4 text-gray-400 hover:text-white text-1xl font-bold"
           aria-label="Close"
         >
           &times;
         </button>
 
-        <div className="flex items-center mb-8">
-          <h2 className="text-3xl font-bold text-[#FAB503] uppercase tracking-wider text-center flex-grow">
-            Edit Restaurant Details
-          </h2>
-        </div>
 
-        <div className="flex flex-col items-center mb-6">
+        <div className="flex flex-col items-center mb-2">
           <img
             src={profilePicturePreview}
             alt="Restaurant Profile"
-            className="w-24 h-24 rounded-full object-cover mb-3 border-2 border-yellow-500 shadow-md"
+            className="w-20 h-20 rounded-full object-cover mb-3 border-2 border-yellow-500 shadow-md"
           />
           <label
             htmlFor="profilePicture"
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-full cursor-pointer transition-colors duration-200"
+            className="px-2 py-0 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-full cursor-pointer transition-colors duration-200"
           >
             Change Profile Picture
           </label>
@@ -101,7 +117,7 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
           />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2">
           <input
             type="text"
             name="restaurantName"
@@ -109,16 +125,16 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             value={formData.restaurantName}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
           <input
             type="text"
             name="address.street"
             placeholder="Street Address"
-            value={formData.address.street}
+            value={formData.address?.street || ""}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
           <input
             type="text"
@@ -127,7 +143,7 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             value={formData.address.city}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
           <input
             type="text"
@@ -136,7 +152,7 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             value={formData.address.district}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
           <input
             type="text"
@@ -145,7 +161,7 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             value={formData.ownerName}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
           <input
             type="tel"
@@ -154,7 +170,7 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             value={formData.phoneNumber}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
           <input
             type="tel"
@@ -162,7 +178,7 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             placeholder="Land Phone Number (Optional)"
             value={formData.landPhoneNumber}
             onChange={handleChange}
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
           <input
             type="text"
@@ -171,7 +187,7 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             value={formData.registrationNumber}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
            <input
             type="text"
@@ -180,40 +196,39 @@ function RestaurantProfileEditForm({ onClose, onSave, initialData }) {
             value={formData.cuisineType}
             onChange={handleChange}
             required
-            className="bg-transparent w-full h-[32px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
+            className="bg-transparent w-full h-[12px] rounded-[10px] p-3 text-[#D9D9D9] border-b border-[#D9D9D9] focus:outline-none focus:border-[#FAB503] placeholder-[#D9D9D9] hover:border-[#FAB503]"
           />
 
           <button
             type="submit"
-            className="w-full h-[40px] rounded-[30px] py-0 mt-5 bg-[#FAB503] text-[#D9D9D9] font-bold text-lg hover:bg-[#FAB503] transition duration-300 hover:text-black hover:shadow-lg hover:scale-105 transform active:scale-95"
+            className="w-full h-[30px] rounded-[30px] py-0 mt-5 bg-[#FAB503] text-[#D9D9D9] font-bold text-lg hover:bg-[#FAB503] transition duration-300 hover:text-black hover:shadow-lg hover:scale-105 transform active:scale-95"
           >
             SAVE DETAILS
           </button>
         </form>
 
-        <div className="flex items-center my-6">
+        <div className="flex items-center my-2">
           <hr className="flex-grow border-[#D9D9D9]" />
           <span className="mx-4 text-[#D9D9D9]">OR</span>
           <hr className="flex-grow border-[#D9D9D9]" />
         </div>
         <button
           type="button"
-          className="w-full h-[40px] rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#D9D9D9] text-gray-300 font-semibold hover:bg-[#FAB503] transition duration-300 hover:border-[#FAB503] hover:text-black"
+          className="w-full h-[10px] rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#D9D9D9] text-gray-300 font-semibold hover:bg-[#FAB503] transition duration-300 hover:border-[#FAB503] hover:text-black"
           onClick={() => alert('Future feature: Open image upload gallery')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 fill-current" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-1 fill-current" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           <span>Add More Restaurant Photos</span>
         </button>
 
-        <p className="mt-8 text-center text-[#D9D9D9] text-sm">
-          Return to dashboard?{' '}
+        
           <button
             onClick={onClose}
-            className="text-[#FAB503] hover:underline"
+            className="text-[#FAB503] flex flex-col items-center py-5 mx-auto"
           >
             CANCEL
           </button>
-        </p>
+      
       </div>
     </div>
   );

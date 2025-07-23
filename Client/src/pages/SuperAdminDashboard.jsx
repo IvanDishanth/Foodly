@@ -749,20 +749,27 @@ const SuperAdminDashboard = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Top Navigation */}
-        <header className="bg-white shadow-sm p-4">
+       <header className="bg-white shadow-sm p-4">
           <div className="flex justify-between items-center">
-            <div className="relative w-full max-w-md">
-             
-              
-            </div>
+            <div className="relative w-full max-w-md"></div>
             <div className="flex items-center space-x-4 ml-4">
-             
               <div className="flex items-center">
                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                   <FiUser className="text-gray-600" />
                 </div>
-                {/* {sidebarOpen && <span className="ml-2 font-medium">Admin</span>} */}
               </div>
+              <button
+                onClick={async () => {
+                  try {
+                    await axios.post('http://localhost:5000/api/admin/logout');
+                  } catch (err) {}
+                  localStorage.removeItem('token');
+                  window.location.href = '/login';
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors font-semibold"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </header>
