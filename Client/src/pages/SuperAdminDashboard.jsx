@@ -1,6 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FiUsers, FiHome, FiDollarSign, FiCalendar, FiSettings, FiMenu, FiSearch, FiBell, FiUser } from 'react-icons/fi';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+function StripePaymentForm({ amount, restaurantId, onSuccess, onCancel }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleStripePayment = async (e) => {
+    e.preventDefault();
+    setProcessing(true);
+    setError(null);
+    // Defensive: ensure amount and restaurantId are valid before API call
+    if (!amount || isNaN(amount) || !restaurantId) {
+      setError('Amount and restaurant ID are required');
+      setProcessing(false);
+      return;
+    }
+    try {
+      // 1. Create PaymentIntent on backend
+      const res = await axios.post('http://localhost:5000/api/payments/create-payment-intent', {
+        amount: parseFloat(amount),
+        restaurantId: restaurantId
+      });
+      const clientSecret = res.data.clientSecret;
+      // 2. Confirm card payment
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      });
+      if (result.error) {
+        setError(result.error.message);
+      } else if (result.paymentIntent.status === 'succeeded') {
+        onSuccess();
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Payment failed');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleStripePayment} className="space-y-4">
+      <CardElement className="p-2 bg-gray-700 text-white rounded" />
+      {error && <div className="text-red-500 text-sm">{error}</div>}
+      <div className="flex justify-end space-x-2 mt-6">
+        <button type="button" onClick={onCancel} className="px-4 py-2 bg-gray-600 text-white rounded-md">Cancel</button>
+        <button type="submit" className="px-4 py-2 bg-yellow-600 text-white rounded-md" disabled={processing}>
+          {processing ? 'Processing...' : 'Pay Now'}
+        </button>
+      </div>
+    </form>
+  );
+}
 
 const SuperAdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -34,7 +93,14 @@ const SuperAdminDashboard = () => {
     status: 'pending'
   });
 
-  // ...existing code...
+  const [paymentInProgress, setPaymentInProgress] = useState({});
+  const [showCheckout, setShowCheckout] = useState({});
+
+  // Add modal state for payment
+  const [showPaymentModal, setShowPaymentModal] = useState({});
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [showStripe, setShowStripe] = useState(false);
 
   // Add these handlers
   const handleRestaurantInput = (e) => {
@@ -75,6 +141,22 @@ const SuperAdminDashboard = () => {
     }
   };
 
+  const handleMakePayment = (restaurantId) => {
+    setSelectedRestaurant(restaurantId);
+    setShowPaymentModal(prev => ({ ...prev, [restaurantId]: true }));
+    setShowStripe(false);
+    setPaymentAmount('');
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(prev => ({ ...prev, [selectedRestaurant]: false }));
+    setShowCheckout(prev => ({ ...prev, [selectedRestaurant]: false }));
+    setSelectedRestaurant(null);
+    setPaymentAmount('');
+    setShowStripe(false);
+    fetchData();
+    alert('Payment successful!');
+  };
 
   // Get auth token and config
   const getConfig = () => {
@@ -432,7 +514,7 @@ const SuperAdminDashboard = () => {
                               onClick={() => updateRestaurantStatus(restaurant._id, 'verified')}
                               className="text-green-600 hover:text-green-900"
                             >
-                              
+                              {/* ... */}
                             </button>
                           )}
                           {restaurant.status !== 'rejected' && (
@@ -440,7 +522,7 @@ const SuperAdminDashboard = () => {
                               onClick={() => updateRestaurantStatus(restaurant._id, 'rejected')}
                               className="text-red-600 hover:text-red-900"
                             >
-                              
+                              {/* ... */}
                             </button>
                           )}
                           <button

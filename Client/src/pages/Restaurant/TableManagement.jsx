@@ -74,11 +74,11 @@ function TableManagement({ tables, setTables }) {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg">
-      <h3 className="text-2xl font-bold text-yellow-400 mb-6 text-center">Manage Tables</h3>
+    <div className="bg-gray-900 p-0 rounded-lg">
+      <h3 className="text-1xl font-bold text-yellow-400 mb-2 text-center">Manage Tables</h3>
       <button
         onClick={() => { setEditingTable(null); setShowAddTableModal(true); }}
-        className="mb-6 px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors shadow-md flex items-center justify-center mx-auto"
+        className="mb-4 px-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors shadow-md flex items-center justify-center mx-auto"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 fill-current" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         Add New Table

@@ -106,26 +106,25 @@ export const registerRestaurant = async (req, res) => {
 export const loginRestaurant = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.log("[loginRestaurant] Attempt login for:", email);
     // Find restaurant by email
     const restaurant = await Restaurant.findOne({ email });
     if (!restaurant) {
+      console.log("[loginRestaurant] Restaurant not found for:", email);
       return res.status(404).json({ message: "Restaurant not found" });
     }
-
     // Compare password
     const isMatch = await bcrypt.compare(password, restaurant.password);
     if (!isMatch) {
+      console.log("[loginRestaurant] Invalid password for:", email);
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
     // Generate JWT token
     const token = jwt.sign(
       { id: restaurant._id, role: restaurant.role || "restaurant", name: restaurant.name, email: restaurant.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-
     res.status(200).json({
       message: "Login successful",
       token,
@@ -137,7 +136,7 @@ export const loginRestaurant = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("[loginRestaurant] Server error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

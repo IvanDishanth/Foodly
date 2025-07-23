@@ -37,7 +37,7 @@ const BookingManagement = ({ restaurantId }) => {
   if (error) return <div className="text-center text-red-500 mt-10">{error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-4xl mx-auto mt-10 p-6 bg-gray-700 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">My Bookings</h2>
 
       {bookings.length === 0 ? (

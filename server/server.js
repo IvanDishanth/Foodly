@@ -16,8 +16,7 @@ import bookingRouter from "./routes/booking.routes.js";
 import tableRoutes from './routes/tableRoutes.js';
 import foodRoutes from './routes/foodRoutes.js';
 import restaurantRoutes from "./routes/restaurant.routes.js";
-
-
+import webhookRoute from './routes/webhook.js';
 
 
 
@@ -84,7 +83,7 @@ app.use('/api/bookings', bookingRouter);
 app.use('/api/payments', paymentRoutes);
 app.use("/api/restaurant", restaurantRoutes);
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
-
+app.use('/api/webhook', webhookRoute);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({

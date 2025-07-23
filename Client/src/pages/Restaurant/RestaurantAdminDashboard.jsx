@@ -116,31 +116,28 @@ const handleToggleStatus = async () => {
               onClick={() => setShowPaymentModal(true)}
               className="px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
             >
-              Make Payment to Superadmin
-            
+              Payment to Superadmin
             </button>
-
-{showPaymentModal && restaurantData?._id && (
-  <RestaurantPaymentToAdminModal
-    restaurantId={restaurantData._id}
-    onClose={() => setShowPaymentModal(false)}
-    onPaymentSubmit={(payment) => {
-      console.log('✅ New payment recorded:', payment);
-    }}
-  />
-)}
-
-
+            {showPaymentModal && restaurantData?._id && (
+              <RestaurantPaymentToAdminModal
+                restaurantId={restaurantData._id}
+                onClose={() => setShowPaymentModal(false)}
+                onPaymentSubmit={() => {
+                  setShowPaymentModal(false);
+                  // Optionally, trigger a data refresh or notification here
+                }}
+              />
+            )}
           </div>
         );
       case 'Update':
         return (
           <div className="p-4 bg-gray-900 rounded-lg shadow-inner min-h-[300px]">
-            <div className="flex space-x-6 mb-6 justify-center">
+            <div className="flex space-x-6 mb-4 justify-center">
               {['Table', 'Food'].map((tab) => (
                 <button
                   key={tab}
-                  className={`px-4 py-2 rounded-full font-medium transition-colors duration-200 ${
+                  className={`px-6 py-1 rounded-full font-medium transition-colors duration-200 ${
                     activeUpdateTab === tab
                       ? 'bg-yellow-600 text-white shadow-md'
                       : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -198,7 +195,7 @@ const handleToggleStatus = async () => {
   return (
     <div className="min-h-screen bg-black text-white font-sans relative">
       {/* Top Section - Foodly Logo, Restaurant Name, Profile/Edit Buttons */}
-       <header className="p-4 bg-black flex items-center justify-between border-b border-gray-800">
+       <header className="p-2 bg-black flex items-center justify-between border-b border-gray-800">
         <div className="flex items-center">
           <div className="text-yellow-500 text-3xl font-bold font-serif mr-4">Foodly</div>
           <h1 className="text-3xl font-semibold text-white">{restaurantData.name}</h1>
@@ -239,7 +236,7 @@ const handleToggleStatus = async () => {
               localStorage.removeItem('token');
               navigate('/login');
             }}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors font-semibold"
+            className="px-2 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors font-semibold"
           >
             Logout
           </button>
@@ -247,18 +244,18 @@ const handleToggleStatus = async () => {
       </header>
 
       {/* Main Content Area */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 py-8">
         {/* Navigation Tabs */}
-        <nav className="flex justify-around bg-gray-800 rounded-lg p-3 mb-8 shadow-md">
+        <nav className="flex justify-center gap-40 bg-gray-900 rounded-lg p-2 mb-4 shadow-md">
           {['Home', 'Update', 'Booking', 'Profile'].map((tab) => (
             <button
               key={tab}
-              className={`px-6 py-2 rounded-md text-lg font-medium transition-colors duration-200 ${
-                activeDashboardTab === tab
+              className={`px-4 py-2 rounded-full text-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500
+                ${activeDashboardTab === tab
                   ? 'bg-yellow-600 text-white shadow-md'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              }`}
+                  : 'text-gray-300 bg-gray-800 hover:bg-yellow-600 hover:text-white'}`}
               onClick={() => setActiveDashboardTab(tab)}
+              aria-current={activeDashboardTab === tab ? 'page' : undefined}
             >
               {tab}
             </button>
@@ -266,7 +263,7 @@ const handleToggleStatus = async () => {
         </nav>
 
         {/* Open / Close Status Buttons */}
-        <div className="flex justify-center space-x-4 mb-8">
+        <div className="flex justify-center space-x-4 mb-2">
           <button
             className={`px-8 py-3 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg
               ${restaurantData.isOpen ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-500'}`}
@@ -299,8 +296,9 @@ const handleToggleStatus = async () => {
       )}
 
       {/* Restaurant Payment to Admin Modal */}
-      {showPaymentToAdminModal && (
+      {showPaymentToAdminModal && restaurantData?._id && (
         <RestaurantPaymentToAdminModal
+          restaurantId={restaurantData._id}
           onClose={() => setShowPaymentToAdminModal(false)}
           onPaymentSubmit={handleAdminPaymentSubmit}
         />
