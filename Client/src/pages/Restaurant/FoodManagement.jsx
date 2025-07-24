@@ -7,6 +7,14 @@ function FoodManagement({ foodItems, setFoodItems }) {
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [editingFood, setEditingFood] = useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const foodsPerPage = 3;
+  const totalPages = Math.ceil((foodItems?.length || 0) / foodsPerPage);
+  const indexOfLastFood = currentPage * foodsPerPage;
+  const indexOfFirstFood = indexOfLastFood - foodsPerPage;
+  const currentFoods = (Array.isArray(foodItems) ? foodItems : []).slice(indexOfFirstFood, indexOfLastFood);
+
   // Fetch foods from backend
   useEffect(() => {
     const fetchFoods = async () => {
@@ -85,7 +93,7 @@ function FoodManagement({ foodItems, setFoodItems }) {
       </button>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {foodItems.map(item => (
+        {currentFoods.map(item => (
           <div key={item._id || item.id} className="bg-gray-700 rounded-lg p-4 shadow-md border border-gray-600 flex flex-col items-center">
             <img src={item.image} alt={item.name} className="w-full h-32 object-cover rounded-md mb-3" />
             <h4 className="text-xl font-semibold text-white mb-1">{item.name}</h4>
@@ -117,6 +125,36 @@ function FoodManagement({ foodItems, setFoodItems }) {
           </div>
         ))}
       </div>
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded bg-gray-600 text-white disabled:opacity-50"
+          >
+            Prev
+          </button>
+          {[...Array(totalPages)].map((_, idx) => (
+            <button
+              key={idx + 1}
+              onClick={() => setCurrentPage(idx + 1)}
+              className={`px-3 py-1 rounded-full font-semibold transition-colors duration-150 ${
+                currentPage === idx + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-700 text-gray-200 hover:bg-yellow-600 hover:text-white'
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded bg-gray-600 text-white disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {showAddFoodModal && (
         <FoodFormModal

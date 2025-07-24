@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 
 const FoodCategories = ({ onCategorySelect }) => {
   const categories = [
-    { name: 'Indian', image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', color: 'from-amber-500' },
-    { name: 'Sri Lankan', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', color: 'from-amber-500' },
-    { name: 'Chinese', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', color: 'from-amber-500' },
-    { name: 'Thai', image: 'https://images.unsplash.com/photo-1546069901-4561950734e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', color: 'from-amber-500' },
-    { name: 'Italian', image: 'https://images.unsplash.com/photo-1516054575922-f0b8eeadec1a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', color: 'from-amber-500 ' },
-    { name: 'Japanese', image: 'https://images.unsplash.com/photo-1553621042-f6e147245754?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', color: 'from-amber-500 ' },
+    { name: 'Indian', image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', },
+    { name: 'Sri Lankan', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', },
+    { name: 'Chinese', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', },
+    { name: 'Thai', image: 'https://media.cnn.com/api/v1/images/stellar/prod/151215114545-40-thai-food-27-som-tam-1.jpg?q=w_1110,c_fill', },
+    { name: 'Italian', image: 'https://lirp.cdn-website.com/a23f1af3/dms3rep/multi/opt/GettyImages-1190036539-640w.jpg', },
+    { name: 'Japanese', image: 'https://images.unsplash.com/photo-1553621042-f6e147245754?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', },
   ];
 
   return (
@@ -19,7 +19,7 @@ const FoodCategories = ({ onCategorySelect }) => {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onCategorySelect(category.name)}
-          className="relative rounded-xl overflow-hidden group cursor-pointer h-32"
+          className="relative rounded-xl overflow-hidden group cursor-pointer h-24"
         >
           <img 
             src={category.image} 

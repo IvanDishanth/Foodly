@@ -322,6 +322,27 @@ const SuperAdminDashboard = () => {
     }
   };
 
+  // Pagination helpers
+const [userPage, setUserPage] = useState(1);
+const usersPerPage = 6;
+const userTotalPages = Math.ceil(users.length / usersPerPage);
+const paginatedUsers = users.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
+
+const [restaurantPage, setRestaurantPage] = useState(1);
+const restaurantsPerPage = 6;
+const restaurantTotalPages = Math.ceil(restaurants.length / restaurantsPerPage);
+const paginatedRestaurants = restaurants.slice((restaurantPage - 1) * restaurantsPerPage, restaurantPage * restaurantsPerPage);
+
+const [bookingPage, setBookingPage] = useState(1);
+const bookingsPerPage = 6;
+const bookingTotalPages = Math.ceil(bookings.length / bookingsPerPage);
+const paginatedBookings = bookings.slice((bookingPage - 1) * bookingsPerPage, bookingPage * bookingsPerPage);
+
+const [paymentPage, setPaymentPage] = useState(1);
+const paymentsPerPage = 6;
+const paymentTotalPages = Math.ceil(payments.length / paymentsPerPage);
+const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, paymentPage * paymentsPerPage);
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -407,10 +428,10 @@ const SuperAdminDashboard = () => {
         );
       case 'users':
         return (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-gray-800 h-[550px] rounded-xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-500">
+                <thead className="bg-gray-800">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
@@ -419,9 +440,9 @@ const SuperAdminDashboard = () => {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map(user => (
-                    <tr key={user._id} className="hover:bg-gray-50">
+                <tbody className="bg-gray-800 divide-y divide-gray-600">
+                  {paginatedUsers.map(user => (
+                    <tr key={user._id} className="hover:bg-gray-600">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -463,11 +484,20 @@ const SuperAdminDashboard = () => {
                 </tbody>
               </table>
             </div>
+            {userTotalPages > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                <button onClick={() => setUserPage(userPage - 1)} disabled={userPage === 1} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Prev</button>
+                {[...Array(userTotalPages)].map((_, idx) => (
+                  <button key={idx + 1} onClick={() => setUserPage(idx + 1)} className={`px-3 py-1 rounded-full font-semibold ${userPage === idx + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-yellow-600 hover:text-white'}`}>{idx + 1}</button>
+                ))}
+                <button onClick={() => setUserPage(userPage + 1)} disabled={userPage === userTotalPages} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Next</button>
+              </div>
+            )}
           </div>
         );
       case 'restaurants':
         return (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-gray-800 h-[550px]  rounded-xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -480,7 +510,7 @@ const SuperAdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {restaurants.map(restaurant => (
+                  {paginatedRestaurants.map(restaurant => (
                     <tr key={restaurant._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -538,6 +568,15 @@ const SuperAdminDashboard = () => {
                 </tbody>
               </table>
             </div>
+            {restaurantTotalPages > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                <button onClick={() => setRestaurantPage(restaurantPage - 1)} disabled={restaurantPage === 1} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Prev</button>
+                {[...Array(restaurantTotalPages)].map((_, idx) => (
+                  <button key={idx + 1} onClick={() => setRestaurantPage(idx + 1)} className={`px-3 py-1 rounded-full font-semibold ${restaurantPage === idx + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-yellow-600 hover:text-white'}`}>{idx + 1}</button>
+                ))}
+                <button onClick={() => setRestaurantPage(restaurantPage + 1)} disabled={restaurantPage === restaurantTotalPages} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Next</button>
+              </div>
+            )}
           </div>
         );
       case 'bookings':
@@ -558,7 +597,7 @@ const SuperAdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {bookings.map(booking => (
+                  {paginatedBookings.map(booking => (
                     <tr key={booking._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         #{booking._id.slice(-6)}
@@ -611,6 +650,15 @@ const SuperAdminDashboard = () => {
                 </tbody>
               </table>
             </div>
+            {bookingTotalPages > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                <button onClick={() => setBookingPage(bookingPage - 1)} disabled={bookingPage === 1} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Prev</button>
+                {[...Array(bookingTotalPages)].map((_, idx) => (
+                  <button key={idx + 1} onClick={() => setBookingPage(idx + 1)} className={`px-3 py-1 rounded-full font-semibold ${bookingPage === idx + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-yellow-600 hover:text-white'}`}>{idx + 1}</button>
+                ))}
+                <button onClick={() => setBookingPage(bookingPage + 1)} disabled={bookingPage === bookingTotalPages} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Next</button>
+              </div>
+            )}
           </div>
         );
       case 'payments':
@@ -629,7 +677,7 @@ const SuperAdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {payments.map(payment => (
+                  {paginatedPayments.map(payment => (
     <tr key={payment._id} className="hover:bg-gray-50">
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
         #{payment._id.slice(-6)}
@@ -676,9 +724,17 @@ const SuperAdminDashboard = () => {
                 </tbody>
               </table>
             </div>
+            {paymentTotalPages > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                <button onClick={() => setPaymentPage(paymentPage - 1)} disabled={paymentPage === 1} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Prev</button>
+                {[...Array(paymentTotalPages)].map((_, idx) => (
+                  <button key={idx + 1} onClick={() => setPaymentPage(idx + 1)} className={`px-3 py-1 rounded-full font-semibold ${paymentPage === idx + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-yellow-600 hover:text-white'}`}>{idx + 1}</button>
+                ))}
+                <button onClick={() => setPaymentPage(paymentPage + 1)} disabled={paymentPage === paymentTotalPages} className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Next</button>
+              </div>
+            )}
           </div>
         );
-
       case 'settings':
         return (
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -831,7 +887,7 @@ const SuperAdminDashboard = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Top Navigation */}
-       <header className="bg-white shadow-sm p-4">
+       <header className="bg-gray-900 shadow-sm p-4">
           <div className="flex justify-between items-center">
             <div className="relative w-full max-w-md"></div>
             <div className="flex items-center space-x-4 ml-4">

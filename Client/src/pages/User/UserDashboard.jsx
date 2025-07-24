@@ -202,7 +202,7 @@ function UserDashboard() {
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4 text-gray-100">All Restaurants</h2>
                 {loading ? (
-                  <div>Loading...</div>
+                  <div className="text-[#FAB503]">Loading...</div>
                 ) : error ? (
                   <div className="text-red-500">{error}</div>
                 ) : (
