@@ -793,38 +793,6 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
         return null;
     }
   };
-
-
-
-
-
-
-
-
-
-
-
-
-  
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   return (
     <div className="flex h-screen bg-gray-900">
       {/* Sidebar */}
@@ -911,14 +879,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
             </div>
           </div>
         </header>
-
-
-
-
-
- 
-
-
+      
     <div className="flex h-screen bg-gray-900">
       {/* Sidebar */}
       {/* ...existing sidebar code... */}
@@ -1023,20 +984,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
         )}
       </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-      </div>
+    </div>
     </div>
   );
 };
