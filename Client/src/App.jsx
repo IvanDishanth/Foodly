@@ -40,7 +40,11 @@ function App() {
 
   return (
     <>
+<<<<<<< HEAD
     
+=======
+      
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -68,6 +72,10 @@ function App() {
         />
       </Routes>
 
+<<<<<<< HEAD
+=======
+     
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
 
       {/* Toast Notifications */}
       <ToastContainer

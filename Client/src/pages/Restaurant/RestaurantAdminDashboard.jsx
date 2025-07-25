@@ -95,7 +95,11 @@ function RestaurantAdminDashboard() {
 
   const handleLogout = async () => {
     try {
+<<<<<<< HEAD
       await api.post('/restaurant/logout'); // Corrected endpoint
+=======
+      await api.post('/restaurant/logout');
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
     } catch (err) {
       // Optionally handle error
     }

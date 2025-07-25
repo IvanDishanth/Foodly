@@ -793,7 +793,10 @@ const SuperAdminDashboard = () => {
         return null;
     }
   };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
   return (
     <div className="flex h-screen bg-gray-900">
       {/* Toast Container */}
@@ -899,6 +902,18 @@ const SuperAdminDashboard = () => {
             </div>
           </div>
         </header>
+<<<<<<< HEAD
+=======
+      
+    <div className="flex h-screen bg-gray-900">
+      {/* Sidebar */}
+      {/* ...existing sidebar code... */}
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        {/* Top Navigation */}
+        {/* ...existing header code... */}
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
 
         {/* Content Area */}
         <main className="p-6">
@@ -994,6 +1009,7 @@ const SuperAdminDashboard = () => {
             </div>
           </div>
         )}
+<<<<<<< HEAD
 
         {/* Payment Modal */}
         {selectedRestaurant && showPaymentModal[selectedRestaurant] && (
@@ -1050,6 +1066,11 @@ const SuperAdminDashboard = () => {
           </div>
         )}
       </div>
+=======
+      </div>
+    </div>
+    </div>
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
     </div>
   );
 };

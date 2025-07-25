@@ -4,8 +4,11 @@ import axios from "../api/axios.js";
 import { useNavigate, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+<<<<<<< HEAD
 import Navbar from '../components/Navbar';
 
+=======
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
 
 const RestaurantLoginForm = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -32,7 +35,10 @@ const RestaurantLoginForm = () => {
       localStorage.setItem("restaurantId", res.data.restaurant._id);
       localStorage.setItem('restaurantToken', res.data.token);
       localStorage.setItem('restaurantInfo', JSON.stringify(res.data.restaurant));
+<<<<<<< HEAD
 
+=======
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
       toast.success("Login successful!");
       setLoading(false);
       navigate('/restaurant-dashboard');
@@ -46,13 +52,20 @@ const RestaurantLoginForm = () => {
 
   return (
     <>
+<<<<<<< HEAD
      <Navbar />
+=======
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
       <div
         className="min-h-screen flex items-center justify-center bg-cover bg-center text-white font-inter"
         style={{ backgroundImage: `url(${bg})` }}
       >
         <div className="flex w-[850px] h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70">
+<<<<<<< HEAD
           <div className="hidden md:block md:w-1/2 p-16">
+=======
+          <div className="hidden md:block md:w-1/2 p-8">
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
             <div className="flex items-center justify-center h-full">
               <h1 className="text-5xl font-bold text-[#FAB503]">Manage Your Restaurant!</h1>
             </div>
@@ -109,6 +122,7 @@ const RestaurantLoginForm = () => {
               <span className="mx-4 text-[#D9D9D9]">OR</span>
               <hr className="flex-grow border-[#FAB503]" />
             </div>
+<<<<<<< HEAD
             
             <button
               className="w-full rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#FAB503] text-[#D9D9D9] font-semibold hover:bg-[#FAB503] hover:text-black transition duration-300 shadow-md hover:shadow-lg"
@@ -122,6 +136,8 @@ const RestaurantLoginForm = () => {
                 SIGN UP
               </Link>
             </p> */}
+=======
+>>>>>>> 438ffe98c4d2de989247928cd61b9154eb2bc0bb
           </div>
         </div>
       </div>
