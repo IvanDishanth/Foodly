@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const FALLBACK_AVATAR = 'https://placehold.co/150x150?text=No+Image';
 
@@ -185,10 +187,13 @@ function UserProfile({ user, setUser }) {
         config
       );
       setUser(response.data.user);
+      toast.success("Profile updated successfully!");
       setShowEditModal(false);
       setError(null);
     } catch (error) {
-      setError(error.response?.data?.message || "Profile update error");
+      const message = error.response?.data?.message || "Profile update error";
+      toast.error(message);
+      setError(message);
       console.error("Profile update error:", error);
     } finally {
       setIsLoading(false);
@@ -197,8 +202,9 @@ function UserProfile({ user, setUser }) {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+
       <div className="flex flex-col items-center">
-        {/* Profile Picture */}
         <div className="relative mb-4">
           <img
             src={user?.profilePic || FALLBACK_AVATAR}
@@ -223,11 +229,9 @@ function UserProfile({ user, setUser }) {
           </button>
         </div>
 
-        {/* Basic Info */}
         <h2 className="text-2xl font-bold text-gray-800">{user.name || 'No name provided'}</h2>
         <p className="text-gray-600">{user.email}</p>
 
-        {/* Details */}
         <div className="w-full mt-8 bg-gray-100 rounded-lg p-6">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">Personal Information</h3>
           <div className="space-y-4">
@@ -249,7 +253,6 @@ function UserProfile({ user, setUser }) {
             {isLoading ? 'Saving...' : 'Edit Profile'}
           </button>
 
-          {/* Error Message */}
           {error && (
             <div className="mt-4 p-2 bg-red-100 text-red-700 rounded">
               {error}
@@ -258,7 +261,6 @@ function UserProfile({ user, setUser }) {
         </div>
       </div>
 
-      {/* Edit Modal */}
       {showEditModal && (
         <UserProfileEditModal 
           user={user}

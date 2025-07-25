@@ -12,7 +12,7 @@ export const getAllFoods = async (req, res) => {
 export const addFood = async (req, res) => {
   const { name, price, isAvailable } = req.body;
   const restaurantId = req.user.restaurantId;
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
+  const image = req.file ? req.file.path : null;
 
   const newFood = new Food({
     name,
@@ -32,10 +32,15 @@ export const addFood = async (req, res) => {
 
 export const updateFood = async (req, res) => {
   const { id } = req.params;
-  const { name, price, isAvailable, image } = req.body;
+  const { name, price, isAvailable } = req.body;
+  const image = req.file ? req.file.path : req.body.image;
 
   try {
-    const updatedFood = await Food.findByIdAndUpdate(id, { name, price, isAvailable, image }, { new: true });
+    const updatedFood = await Food.findByIdAndUpdate(
+      id,
+      { name, price, isAvailable, image },
+      { new: true }
+    );
     if (!updatedFood) {
       return res.status(404).json({ message: 'Food item not found' });
     }

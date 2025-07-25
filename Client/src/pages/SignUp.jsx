@@ -2,51 +2,50 @@ import React, { useState, useEffect } from 'react';
 import bg from '../assets/Images/bg3.jpeg';
 import api from '../api/axios.js';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar'; // <-- Import Navbar
-
+import Navbar from '../components/Navbar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignUpForm = () => {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
-        navigate('/login'); // Or change to '/dashboard' if user is logged in right after signup
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [success, navigate]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccess('');
     try {
-      const response = await api.post('/auth/register', form); // Form already contains name, email, password
+      const response = await api.post('/auth/register', form);
       localStorage.setItem('token', response.data.token);
-      setSuccess('Signup successful! Redirecting...');
+      toast.success('Signup successful! Redirecting...');
       setForm({ name: '', email: '', password: '' });
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(
+      toast.error(
         err?.response?.data?.message || 'Signup failed. Please try again.'
       );
     }
     setLoading(false);
   };
+
   return (
     <>
-      <Navbar /> {/* <-- Add Navbar here */}
+      <Navbar />
+      <ToastContainer position="top-right" autoClose={3000} />
       <div
         className="min-h-screen flex items-center justify-center bg-cover bg-center text-white"
         style={{ backgroundImage: `url(${bg})` }}
       >
-        <div className="flex w-full h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70 hover:shadow-lg">
+        <div className="flex w-[850px] h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70 hover:shadow-lg">
+          <div className="hidden md:block md:w-1/2 p-8">
+            <div className="flex items-center justify-center h-full">
+              <h1 className="text-5xl font-bold text-[#FAB503]">Join Foodly!</h1>
+            </div>
+          </div>
           <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
             <div className="flex items-center mb-8">
               <button
@@ -93,21 +92,20 @@ const SignUpForm = () => {
                 disabled={loading}
                 className="w-full h-[40px] rounded-[30px] py-0 mt-5 bg-[#FAB503] text-[#D9D9D9] font-bold text-lg hover:text-black hover:shadow-lg hover:scale-105 transform active:scale-95 transition duration-300"
               >
-                {loading ? "Signing Up..." : "SIGN UP"}
+                {loading ? 'Signing Up...' : 'SIGN UP'}
               </button>
             </form>
-            {error && <div className="text-red-400 mt-2">{error}</div>}
-            {success && <div className="text-green-400 mt-2">{success}</div>}
+
             <div className="flex items-center my-6">
               <hr className="w-full flex-grow border-[#D9D9D9]" />
               <span className="mx-4 text-[#D9D9D9]">OR</span>
               <hr className="w-full flex-grow border-[#D9D9D9]" />
             </div>
-            {/* <button
-              className="w-full h-[40px] rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#D9D9D9] text-gray-300 font-semibold hover:bg-[#FAB503] hover:border-[#FAB503] hover:text-black transition duration-300"
-            >
+
+            <button className="w-full h-[40px] rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#D9D9D9] text-gray-300 font-semibold hover:bg-[#FAB503] hover:border-[#FAB503] hover:text-black transition duration-300">
               <span className="text-xl mr-2">G</span> Sign in with Google
-            </button> */}
+            </button>
+
             <p className="mt-8 text-center text-[#D9D9D9] text-sm">
               Already have an account?{' '}
               <a href="/login" className="text-[#FAB503] hover:underline">

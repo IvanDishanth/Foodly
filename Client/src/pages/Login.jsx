@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import api from "../api/axios.js";
 import { useNavigate, Link } from 'react-router-dom';
 import bg from '../assets/Images/bg3.jpeg';
-import Navbar from '../components/Navbar'; // <-- Import Navbar
+import Navbar from '../components/Navbar';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginForm = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -20,53 +22,61 @@ const LoginForm = () => {
     setError('');
 
     try {
-      // API call to your backend login endpoint
       const res = await api.post('/auth/login-user', {
         email: form.email,
         password: form.password
       });
+
       const { token, user } = res.data;
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('role', user.role); 
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', user.role);
 
-    setLoading(false);
+      toast.success('Login successful!');
+      setLoading(false);
 
-    
-    if (user.role === 'superadmin') {
-      navigate('/SuperAdminDashboard');
-    } else {
-      navigate('/UserDashboard');
-    }
-     
+      // Add slight delay before navigating
+      setTimeout(() => {
+        if (user.role === 'superadmin') {
+          navigate('/SuperAdminDashboard');
+        } else {
+          navigate('/UserDashboard');
+        }
+      }, 1000); // wait 1 second before redirect
+
     } catch (err) {
-      setError(
+      const errorMsg =
         err?.response?.data?.message ||
         err?.message ||
-        'Login failed. Please try again.'
-      );
+        'Login failed. Please try again.';
+
+      toast.error(errorMsg);
+      setError(errorMsg);
       setLoading(false);
     }
   };
 
   return (
     <>
-      <Navbar /> {/* <-- Add Navbar here */}
+      <Navbar />
       <div
         className="min-h-screen flex items-center justify-center bg-cover bg-center text-white font-inter"
         style={{ backgroundImage: `url(${bg})` }}
       >
         <div className="flex w-[850px] h-[520px] max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-lg bg-black bg-opacity-70">
-          {/* Hidden on small screens, visible on medium and up - for visual balance */}
           <div className="hidden md:block md:w-1/2 p-8">
             <div className="flex items-center justify-center h-full">
               <h1 className="text-5xl font-bold text-[#FAB503]">Welcome Back!</h1>
             </div>
           </div>
-          {/* Login Form Section */}
+
           <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
             <div className="flex items-center mb-8">
-              <Link to="#" onClick={() => navigate(-1)} className="text-[#FAB503] text-4xl mr-4 hover:text-gray-300 rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-800">
+              <Link
+                to="#"
+                onClick={() => navigate(-1)}
+                className="text-[#FAB503] text-4xl mr-4 hover:text-gray-300 rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-800"
+              >
                 &#8592;
               </Link>
               <h2 className="text-3xl font-bold text-[#FAB503] uppercase tracking-wider flex-grow text-center pr-10">
@@ -94,7 +104,10 @@ const LoginForm = () => {
                   required
                   className="w-full rounded-[10px] bg-transparent p-3 text-white border-b border-[#D9D9D9] focus:outline-none focus:border-yellow-500 placeholder-[#D9D9D9] hover:border-[#FAB503] transition duration-300"
                 />
-                <Link to="/forgot-password" className="absolute right-0 top-1/2 -translate-y-1/4 text-sm text-[#FAB503] hover:underline px-3 py-1">
+                <Link
+                  to="/forgot-password"
+                  className="absolute right-0 top-1/2 -translate-y-1/4 text-sm text-[#FAB503] hover:underline px-3 py-1"
+                >
                   Forgot?
                 </Link>
               </div>
@@ -115,12 +128,11 @@ const LoginForm = () => {
               <span className="mx-4 text-[#D9D9D9]">OR</span>
               <hr className="flex-grow border-[#FAB503]" />
             </div>
-
-            {/* <button
+            <button
               className="w-full rounded-[30px] py-3 flex items-center justify-center bg-transparent border border-[#FAB503] text-[#D9D9D9] font-semibold hover:bg-[#FAB503] hover:text-black transition duration-300 shadow-md hover:shadow-lg"
             >
               <span className="text-xl mr-2">G</span> Sign in with Google
-            </button> */}
+            </button>
 
             <p className="mt-8 text-center text-[#D9D9D9] text-sm">
               Don't have an account?{' '}
@@ -131,6 +143,19 @@ const LoginForm = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 };

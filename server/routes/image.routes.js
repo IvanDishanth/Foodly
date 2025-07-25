@@ -1,19 +1,18 @@
-// routes/image.routes.js
-import express from "express";
-import upload from "../middleware/upload.js";
+import express from 'express';
+import upload from '../config/multer.js'; // adjust path if needed
 
 const router = express.Router();
 
-// Upload single image
-router.post("/upload", upload.single("image"), (req, res) => {
-  try {
-    res.status(200).json({
-      message: "Image uploaded successfully",
-      imageUrl: `/uploads/${req.file.filename}`, // Send back image path
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to upload image" });
+router.post('/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
   }
+
+  res.json({
+    message: 'Upload successful',
+    url: req.file.path,        // Cloudinary image URL
+    public_id: req.file.filename, // Cloudinary public ID
+  });
 });
 
 export default router;
