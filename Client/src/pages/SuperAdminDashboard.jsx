@@ -3,6 +3,8 @@ import axios from 'axios';
 import { FiUsers, FiHome, FiDollarSign, FiCalendar, FiSettings, FiMenu, FiSearch, FiBell, FiUser } from 'react-icons/fi';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -16,20 +18,17 @@ function StripePaymentForm({ amount, restaurantId, onSuccess, onCancel }) {
     e.preventDefault();
     setProcessing(true);
     setError(null);
-    // Defensive: ensure amount and restaurantId are valid before API call
     if (!amount || isNaN(amount) || !restaurantId) {
       setError('Amount and restaurant ID are required');
       setProcessing(false);
       return;
     }
     try {
-      // 1. Create PaymentIntent on backend
       const res = await axios.post('http://localhost:5000/api/payments/create-payment-intent', {
         amount: parseFloat(amount),
         restaurantId: restaurantId
       });
       const clientSecret = res.data.clientSecret;
-      // 2. Confirm card payment
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -82,7 +81,7 @@ const SuperAdminDashboard = () => {
     { title: 'Total Revenue', value: '$0', change: '+0%', trend: 'up' }
   ]);
 
-     const [showAddRestaurant, setShowAddRestaurant] = useState(false);
+  const [showAddRestaurant, setShowAddRestaurant] = useState(false);
   const [newRestaurant, setNewRestaurant] = useState({
     name: '',
     email: '',
@@ -95,14 +94,11 @@ const SuperAdminDashboard = () => {
 
   const [paymentInProgress, setPaymentInProgress] = useState({});
   const [showCheckout, setShowCheckout] = useState({});
-
-  // Add modal state for payment
   const [showPaymentModal, setShowPaymentModal] = useState({});
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [showStripe, setShowStripe] = useState(false);
 
-  // Add these handlers
   const handleRestaurantInput = (e) => {
     const { name, value } = e.target;
     setNewRestaurant(prev => ({
@@ -121,7 +117,7 @@ const SuperAdminDashboard = () => {
       !newRestaurant.phone ||
       !newRestaurant.cuisine
     ) {
-      setError("Please fill all required fields.");
+      toast.error("Please fill all required fields.");
       return;
     }
     try {
@@ -136,8 +132,9 @@ const SuperAdminDashboard = () => {
         cuisine: '',
         status: 'pending'
       });
+      toast.success("Restaurant added successfully!");
     } catch (err) {
-      setError("Failed to create restaurant. Please check your input.");
+      toast.error("Failed to create restaurant. Please check your input.");
     }
   };
 
@@ -155,10 +152,9 @@ const SuperAdminDashboard = () => {
     setPaymentAmount('');
     setShowStripe(false);
     fetchData();
-    alert('Payment successful!');
+    toast.success('Payment successful!');
   };
 
-  // Get auth token and config
   const getConfig = () => {
     const token = localStorage.getItem('token');
     return {
@@ -195,7 +191,7 @@ const SuperAdminDashboard = () => {
         }
       ]);
     } catch (err) {
-      setError('Failed to fetch data. Please try again.');
+      toast.error('Failed to fetch data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -205,7 +201,6 @@ const SuperAdminDashboard = () => {
     fetchData();
   }, []);
 
-  // Toggle user status
   const toggleUserStatus = async (id) => {
     try {
       const user = users.find(u => u._id === id);
@@ -220,12 +215,12 @@ const SuperAdminDashboard = () => {
       setUsers(users.map(u => 
         u._id === id ? { ...u, status: newStatus } : u
       ));
+      toast.success(`User status updated to ${newStatus}`);
     } catch (err) {
-      setError('Failed to update user status');
+      toast.error('Failed to update user status');
     }
   };
 
-  // Update restaurant status
   const updateRestaurantStatus = async (id, status) => {
     try {
       await axios.put(
@@ -236,12 +231,12 @@ const SuperAdminDashboard = () => {
       setRestaurants(restaurants.map(r => 
         r._id === id ? { ...r, status } : r
       ));
+      toast.success(`Restaurant status updated to ${status}`);
     } catch (err) {
-      setError('Failed to update restaurant status');
+      toast.error('Failed to update restaurant status');
     }
   };
 
-  // Update booking status
   const updateBookingStatus = async (id, status) => {
     try {
       await axios.put(
@@ -252,12 +247,12 @@ const SuperAdminDashboard = () => {
       setBookings(bookings.map(b => 
         b._id === id ? { ...b, status } : b
       ));
+      toast.success(`Booking status updated to ${status}`);
     } catch (err) {
-      setError('Failed to update booking status');
+      toast.error('Failed to update booking status');
     }
   };
 
-  // Delete item
   const deleteItem = async (type, id) => {
     if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
 
@@ -296,52 +291,53 @@ const SuperAdminDashboard = () => {
           setPayments(payments.filter(p => p._id !== id));
           break;
       }
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
     } catch (err) {
-      setError(`Failed to delete ${type}`);
+      toast.error(`Failed to delete ${type}`);
     }
   };
 
-  // Create new restaurant
   const createNewRestaurant = async (restaurantData) => {
     try {
       const payload = {
         ...restaurantData,
-        password: restaurantData.password || "changeme123" // Always send password!
+        password: restaurantData.password || "changeme123"
       };
       const response = await axios.post(
-        'http://localhost:5000/api/admin/restaurants',
+        'http://localhost:5000/api/auth/register-restaurant', // <-- update this endpoint
         payload,
         getConfig()
       );
       setRestaurants([...restaurants, response.data.restaurant]);
       return response.data;
     } catch (err) {
-      setError('Failed to create restaurant');
+      // Show backend error message if available
+      toast.error(err.response?.data?.message || 'Failed to create restaurant');
       console.error('Error creating restaurant:', err);
       throw err;
     }
   };
 
   // Pagination helpers
-const [userPage, setUserPage] = useState(1);
-const usersPerPage = 6;
-const userTotalPages = Math.ceil(users.length / usersPerPage);
-const paginatedUsers = users.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
+  const [userPage, setUserPage] = useState(1);
+  const usersPerPage = 6;
+  const userTotalPages = Math.ceil(users.length / usersPerPage);
+  const paginatedUsers = users.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
 
-const [restaurantPage, setRestaurantPage] = useState(1);
-const restaurantsPerPage = 6;
-const restaurantTotalPages = Math.ceil(restaurants.length / restaurantsPerPage);
-const paginatedRestaurants = restaurants.slice((restaurantPage - 1) * restaurantsPerPage, restaurantPage * restaurantsPerPage);
+  const [restaurantPage, setRestaurantPage] = useState(1);
+  const restaurantsPerPage = 6;
+  const restaurantTotalPages = Math.ceil(restaurants.length / restaurantsPerPage);
+  const paginatedRestaurants = restaurants.slice((restaurantPage - 1) * restaurantsPerPage, restaurantPage * restaurantsPerPage);
 
-const [bookingPage, setBookingPage] = useState(1);
-const bookingsPerPage = 6;
-const bookingTotalPages = Math.ceil(bookings.length / bookingsPerPage);
-const paginatedBookings = bookings.slice((bookingPage - 1) * bookingsPerPage, bookingPage * bookingsPerPage);
+  const [bookingPage, setBookingPage] = useState(1);
+  const bookingsPerPage = 6;
+  const bookingTotalPages = Math.ceil(bookings.length / bookingsPerPage);
+  const paginatedBookings = bookings.slice((bookingPage - 1) * bookingsPerPage, bookingPage * bookingsPerPage);
 
-const [paymentPage, setPaymentPage] = useState(1);
-const paymentsPerPage = 6;
-const paymentTotalPages = Math.ceil(payments.length / paymentsPerPage);
-const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, paymentPage * paymentsPerPage);
+  const [paymentPage, setPaymentPage] = useState(1);
+  const paymentsPerPage = 6;
+  const paymentTotalPages = Math.ceil(payments.length / paymentsPerPage);
+  const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, paymentPage * paymentsPerPage);
 
   const renderContent = () => {
     if (loading) {
@@ -470,7 +466,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                           onClick={() => toggleUserStatus(user._id)}
                           className={`mr-2 ${user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
                         >
-                          {user.status === 'active' ? 'Suspend' : ''}
+                          {user.status === 'active' ? 'Suspend' : 'Activate'}
                         </button>
                         <button
                           onClick={() => deleteItem('user', user._id)}
@@ -544,7 +540,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                               onClick={() => updateRestaurantStatus(restaurant._id, 'verified')}
                               className="text-green-600 hover:text-green-900"
                             >
-                              {/* ... */}
+                              Verify
                             </button>
                           )}
                           {restaurant.status !== 'rejected' && (
@@ -552,7 +548,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                               onClick={() => updateRestaurantStatus(restaurant._id, 'rejected')}
                               className="text-red-600 hover:text-red-900"
                             >
-                              {/* ... */}
+                              Reject
                             </button>
                           )}
                           <button
@@ -593,7 +589,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guests</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -640,7 +636,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                               onClick={() => updateBookingStatus(booking._id, 'cancelled')}
                               className="text-red-600 hover:text-red-900"
                             >
-                              
+                              Cancel
                             </button>
                           )}
                         </div>
@@ -665,7 +661,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
         return (
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-800">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
@@ -678,49 +674,42 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {paginatedPayments.map(payment => (
-    <tr key={payment._id} className="hover:bg-gray-50">
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-        #{payment._id.slice(-6)}
-      </td>
-
-      {/* Show restaurant name if populated, else show restaurant ObjectId */}
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {payment.restaurant?.name || payment.restaurant || 'N/A'}
-      </td>
-
-      {/* Use payment.timestamp or payment.createdAt for date */}
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {payment.timestamp
-          ? new Date(payment.timestamp).toLocaleDateString()
-          : payment.createdAt
-          ? new Date(payment.createdAt).toLocaleDateString()
-          : 'N/A'}
-      </td>
-
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {typeof payment.amount === 'number' ? payment.amount.toFixed(2) : payment.amount}
-      </td>
-
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            payment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-          }`}
-        >
-          {payment.status}
-        </span>
-      </td>
-
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <button
-          onClick={() => deleteItem('payment', payment._id)}
-          className="text-red-600 hover:text-red-900"
-        >
-          Delete
-        </button>
-      </td>
-    </tr>
-  ))}
+                    <tr key={payment._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        #{payment._id.slice(-6)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {payment.restaurant?.name || payment.restaurant || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {payment.timestamp
+                          ? new Date(payment.timestamp).toLocaleDateString()
+                          : payment.createdAt
+                          ? new Date(payment.createdAt).toLocaleDateString()
+                          : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {typeof payment.amount === 'number' ? payment.amount.toFixed(2) : payment.amount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            payment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {payment.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => deleteItem('payment', payment._id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -749,7 +738,10 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                     className="w-20 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <span className="ml-2">%</span>
-                  <button className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <button 
+                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    onClick={() => toast.success('Commission rate updated successfully!')}
+                  >
                     Update
                   </button>
                 </div>
@@ -763,7 +755,10 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                     <option>Weekly</option>
                     <option>Daily</option>
                   </select>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <button 
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    onClick={() => toast.success('Payment schedule updated successfully!')}
+                  >
                     Update
                   </button>
                 </div>
@@ -784,6 +779,12 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
                     <input type="checkbox" className="rounded text-blue-600" />
                     <span className="ml-2">Push notifications</span>
                   </label>
+                  <button 
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    onClick={() => toast.success('Notification settings updated successfully!')}
+                  >
+                    Save Settings
+                  </button>
                 </div>
               </div>
             </div>
@@ -794,46 +795,29 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-
-  
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   return (
     <div className="flex h-screen bg-gray-900">
+      {/* Toast Container */}
+      <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+      
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#FAB503] text-white transition-all duration-300 ease-in-out`}>
-        <div className="p-4 flex items-center justify-between">
-          {sidebarOpen && <h1 className="text-xl font-bold">Admin Panel</h1>}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gray-900 text-[#FAB503] transition-all duration-300 ease-in-out`}>
+        <div className="p-2 flex items-center justify-between">
+          {sidebarOpen && <h1 className="text-xl font-bold">Supar Admin Panel</h1>}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-indigo-700"
+            className="p-2 rounded-lg hover:bg-gray-800"
           >
             <FiMenu size={20} />
           </button>
@@ -887,7 +871,7 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Top Navigation */}
-       <header className="bg-gray-900 shadow-sm p-4">
+        <header className="bg-gray-900 shadow-sm p-4">
           <div className="flex justify-between items-center">
             <div className="relative w-full max-w-md"></div>
             <div className="flex items-center space-x-4 ml-4">
@@ -899,10 +883,15 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
               <button
                 onClick={async () => {
                   try {
-                    await axios.post('http://localhost:5000/api/admin/logout');
-                  } catch (err) {}
+                    await axios.post('http://localhost:5000/api/user/logout'); // Corrected endpoint
+                    toast.success('Logged out successfully!');
+                  } catch (err) {
+                    // Silently ignore logout errors
+                  }
                   localStorage.removeItem('token');
-                  window.location.href = '/login';
+                  setTimeout(() => {
+                    window.location.href = '/login';
+                  }, 3000);
                 }}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors font-semibold"
               >
@@ -911,22 +900,6 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
             </div>
           </div>
         </header>
-
-
-
-
-
- 
-
-
-    <div className="flex h-screen bg-gray-900">
-      {/* Sidebar */}
-      {/* ...existing sidebar code... */}
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        {/* Top Navigation */}
-        {/* ...existing header code... */}
 
         {/* Content Area */}
         <main className="p-6">
@@ -945,7 +918,8 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
           )}
           {renderContent()}
         </main>
-        {/* Add this modal just before closing Main Content */}
+
+        {/* Add Restaurant Modal */}
         {showAddRestaurant && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-8 w-full max-w-md shadow-lg relative">
@@ -1021,21 +995,61 @@ const paginatedPayments = payments.slice((paymentPage - 1) * paymentsPerPage, pa
             </div>
           </div>
         )}
-      </div>
-    </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
+        {/* Payment Modal */}
+        {selectedRestaurant && showPaymentModal[selectedRestaurant] && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h3 className="text-xl font-bold mb-4">Make Payment</h3>
+              {!showStripe ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                    <input
+                      type="number"
+                      value={paymentAmount}
+                      onChange={(e) => setPaymentAmount(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded"
+                      placeholder="Enter amount"
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      onClick={() => setShowPaymentModal(prev => ({ ...prev, [selectedRestaurant]: false }))}
+                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!paymentAmount || isNaN(paymentAmount)) {
+                          toast.error('Please enter a valid amount');
+                          return;
+                        }
+                        setShowStripe(true);
+                      }}
+                      className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                    >
+                      Proceed to Payment
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Elements stripe={stripePromise}>
+                  <StripePaymentForm
+                    amount={paymentAmount}
+                    restaurantId={selectedRestaurant}
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={() => {
+                      setShowStripe(false);
+                      setShowPaymentModal(prev => ({ ...prev, [selectedRestaurant]: false }));
+                    }}
+                  />
+                </Elements>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

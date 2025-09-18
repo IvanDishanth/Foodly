@@ -58,7 +58,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Restaurant Registration
+// registerRestaurant
 export const registerRestaurant = async (req, res) => {
   const { name, email, password, address, phone, cuisine } = req.body;
   try {
@@ -71,9 +71,13 @@ export const registerRestaurant = async (req, res) => {
       return res.status(400).json({ message: "Restaurant already exists" });
 
     const hashedUserPassword = await bcrypt.hash(password, 10);
+    // Use User model for partner creation
     const user = await User.create({
       name,
       email,
+      address,
+      phone,
+      cuisine,
       password: hashedUserPassword,
       role: "partner",
     });
@@ -98,6 +102,7 @@ export const registerRestaurant = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error("Error in registerRestaurant:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

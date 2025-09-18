@@ -22,7 +22,7 @@ function TableDisplay({ tables }) {
         {currentTables.map(table => (
           <div key={table._id} className="bg-gray-700 rounded-lg p-1 mt-1 shadow-md border border-gray-600">
             <img 
-              src={`http://localhost:5173${table.image}`} 
+              src={table.image}  
               alt={table.name} 
               className="w-full h-40 object-cover rounded-md mb-3"
             />

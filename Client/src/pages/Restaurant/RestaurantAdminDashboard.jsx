@@ -1,8 +1,10 @@
-// src/pages/RestaurantAdminDashboard.jsx (No Firebase)
+// src/pages/RestaurantAdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify'; // ✅ Import toastify
+import 'react-toastify/dist/ReactToastify.css';
 import RestaurantProfileEditForm from "./RestaurantProfileEditForm.jsx";
 import TableManagement from "./TableManagement.jsx";
 import FoodManagement from "./FoodManagement.jsx";
@@ -16,49 +18,41 @@ function RestaurantAdminDashboard() {
   const [restaurantData, setRestaurantData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-    const [tables, setTables] = useState([]);
-    const [foodItems, setFoodItems] = useState([]);
-
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [restaurant, setRestaurant] = useState(null); // must contain _id
-
-    useEffect(() => {
-        const fetchRestaurantData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    navigate('/login');
-                    return;
-                }
-
-                const response = await axios.get('http://localhost:5000/api/admin/restaurant', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setRestaurantData(response.data);
-                // Initialize tables and foodItems from the fetched restaurant data
-                setTables(response.data.tables || []);
-                setFoodItems(response.data.foodItems || []);
-                setLoading(false);
-            } catch (err) {
-                setError('Failed to fetch restaurant data.');
-                setLoading(false);
-            }
-        };
-
-        fetchRestaurantData();
-    }, [navigate]);
-
+  const [tables, setTables] = useState([]);
+  const [foodItems, setFoodItems] = useState([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const [activeDashboardTab, setActiveDashboardTab] = useState('Home');
   const [activeUpdateTab, setActiveUpdateTab] = useState('Table');
-
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showPaymentToAdminModal, setShowPaymentToAdminModal] = useState(false);
 
-  // Handle updates from the edit form (simulated)
+  useEffect(() => {
+    const fetchRestaurantData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+        const response = await axios.get('http://localhost:5000/api/admin/restaurant', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setRestaurantData(response.data);
+        setTables(response.data.tables || []);
+        setFoodItems(response.data.foodItems || []);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch restaurant data.');
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurantData();
+  }, [navigate]);
+
   const handleProfileUpdate = (updatedData) => {
     setRestaurantData(prevData => ({
       ...prevData,
@@ -68,43 +62,48 @@ function RestaurantAdminDashboard() {
       phoneNumber: updatedData.phoneNumber,
       landPhoneNumber: updatedData.landPhoneNumber,
       registrationNumber: updatedData.registrationNumber,
-      profilePicture: updatedData.profilePicturePreview || prevData.profilePicture, // Use preview for immediate update
+      profilePicture: updatedData.profilePicturePreview || prevData.profilePicture,
     }));
     setShowEditProfileModal(false);
-    console.log("Admin Profile updated:", updatedData);
-    alert('Restaurant profile updated! (Simulated, no persistence)');
+    toast.success("Profile updated successfully! (Simulated)");
   };
 
   const handleAdminPaymentSubmit = (paymentDetails) => {
     console.log("Restaurant paying Superadmin:", paymentDetails);
-    alert('Payment to Superadmin recorded successfully! (Simulated, no persistence)');
+    toast.success("Payment to Superadmin recorded! (Simulated)");
     setShowPaymentToAdminModal(false);
   };
 
   const handleBookingUpdate = (updatedBookings) => {
-    setBookings(updatedBookings);
+    // Update bookings state if necessary
     console.log("Bookings updated by admin:", updatedBookings);
   };
 
-const handleToggleStatus = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const res = await api.put(
-      '/restaurant/status',
-      {}, // If you need to send data, put it here
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    setRestaurantData(res.data);
-  } catch (err) {
-    console.error("Error toggling restaurant status:", err);
-    alert('Failed to update status.');
-  }
-};
-  // Render content based on active dashboard tab
+  const handleToggleStatus = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await api.put('/restaurant/status', {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRestaurantData(res.data);
+      toast.success(`Restaurant is now ${res.data.isOpen ? 'open' : 'closed'}`);
+    } catch (err) {
+      console.error("Error toggling restaurant status:", err);
+      toast.error("Failed to update status.");
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/restaurant/logout'); // Corrected endpoint
+    } catch (err) {
+      // Optionally handle error
+    }
+    localStorage.removeItem('token');
+    toast.success('Logout successful!');
+    setTimeout(() => navigate('/RestaurantLoginForm'), 1500);
+  };
+
   const renderDashboardContent = () => {
     switch (activeDashboardTab) {
       case 'Home':
@@ -124,7 +123,6 @@ const handleToggleStatus = async () => {
                 onClose={() => setShowPaymentModal(false)}
                 onPaymentSubmit={() => {
                   setShowPaymentModal(false);
-                  // Optionally, trigger a data refresh or notification here
                 }}
               />
             )}
@@ -184,18 +182,15 @@ const handleToggleStatus = async () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-center mt-10">Loading dashboard...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500 mt-10">{error}</div>;
-  }
+  if (loading) return <div className="text-center mt-10">Loading dashboard...</div>;
+  if (error) return <div className="text-center text-red-500 mt-10">{error}</div>;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans relative">
-      {/* Top Section - Foodly Logo, Restaurant Name, Profile/Edit Buttons */}
-       <header className="p-2 bg-black flex items-center justify-between border-b border-gray-800">
+      <ToastContainer /> {/* ✅ Toastify container */}
+
+      {/* Header */}
+      <header className="p-2 bg-black flex items-center justify-between border-b border-gray-800">
         <div className="flex items-center">
           <div className="text-yellow-500 text-3xl font-bold font-serif mr-4">Foodly</div>
           <h1 className="text-3xl font-semibold text-white">{restaurantData.name}</h1>
@@ -214,28 +209,12 @@ const handleToggleStatus = async () => {
             className="text-gray-400 hover:text-yellow-500 transition-colors"
             aria-label="Edit Profile"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L15.232 5.232z" />
             </svg>
           </button>
-          {/* Logout Button */}
           <button
-            onClick={async () => {
-              try {
-                await api.post('/restaurant/logout');
-              } catch (err) {
-                // Optionally handle error
-              }
-              localStorage.removeItem('token');
-              navigate('/login');
-            }}
+            onClick={handleLogout}
             className="px-2 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors font-semibold"
           >
             Logout
@@ -243,50 +222,43 @@ const handleToggleStatus = async () => {
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* Main */}
       <div className="container mx-auto px-6 py-8">
-        {/* Navigation Tabs */}
         <nav className="flex justify-center gap-40 bg-gray-900 rounded-lg p-2 mb-4 shadow-md">
           {['Home', 'Update', 'Booking', 'Profile'].map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-2 rounded-full text-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500
+              className={`px-4 py-2 rounded-full text-lg font-semibold transition-colors duration-200
                 ${activeDashboardTab === tab
                   ? 'bg-yellow-600 text-white shadow-md'
                   : 'text-gray-300 bg-gray-800 hover:bg-yellow-600 hover:text-white'}`}
               onClick={() => setActiveDashboardTab(tab)}
-              aria-current={activeDashboardTab === tab ? 'page' : undefined}
             >
               {tab}
             </button>
           ))}
         </nav>
 
-        {/* Open / Close Status Buttons */}
         <div className="flex justify-center space-x-4 mb-2">
           <button
-            className={`px-8 py-3 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg
-              ${restaurantData.isOpen ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-500'}`}
+            className={`px-8 py-3 rounded-full font-bold text-lg ${restaurantData.isOpen ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-500'}`}
             onClick={handleToggleStatus}
           >
             Open
           </button>
           <button
-            className={`px-8 py-3 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg
-              ${!restaurantData.isOpen ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-red-500'}`}
+            className={`px-8 py-3 rounded-full font-bold text-lg ${!restaurantData.isOpen ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-red-500'}`}
             onClick={handleToggleStatus}
           >
             Close
           </button>
         </div>
 
-        {/* Dynamic Content Display Area */}
         <section className="bg-gray-800 rounded-lg p-6 shadow-xl">
           {renderDashboardContent()}
         </section>
       </div>
 
-      {/* Restaurant Profile Edit Form Modal */}
       {showEditProfileModal && (
         <RestaurantProfileEditForm
           onClose={() => setShowEditProfileModal(false)}
@@ -295,7 +267,6 @@ const handleToggleStatus = async () => {
         />
       )}
 
-      {/* Restaurant Payment to Admin Modal */}
       {showPaymentToAdminModal && restaurantData?._id && (
         <RestaurantPaymentToAdminModal
           restaurantId={restaurantData._id}
@@ -303,6 +274,7 @@ const handleToggleStatus = async () => {
           onPaymentSubmit={handleAdminPaymentSubmit}
         />
       )}
+
       <Footer />
     </div>
   );

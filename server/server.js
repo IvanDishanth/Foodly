@@ -5,23 +5,19 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import feedbackRoutes from "./routes/feedback.routes.js";
-import imageRoutes from "./routes/image.routes.js";
+import imageRoutes from "./routes/image.routes.js"; // ✅ Image route
 import paymentRoutes from "./routes/payment.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
 import tableRoutes from './routes/tableRoutes.js';
 import foodRoutes from './routes/foodRoutes.js';
 import restaurantRoutes from "./routes/restaurant.routes.js";
 import webhookRoute from './routes/webhook.js';
-
-
-
-
-
 
 dotenv.config();
 
@@ -44,7 +40,7 @@ app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-// ✅ Add this block before routes
+
 app.use(session({
   name: 'sessionId',
   secret: process.env.SESSION_SECRET || 'your-secret',
@@ -52,17 +48,21 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // use true only in HTTPS production
-    sameSite: 'Lax' // 'Strict' is more secure, but may break some flows
-  }
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Lax',
+  },
 }));
 
+// Static file access (for local uploads if needed)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
+// ✅ Health check route
 app.get('/api', (req, res) => {
   res.send("API is running");
 });
 
+// ✅ Environment check
 app.get("/test-env", (req, res) => {
   res.json({
     jwt: process.env.JWT_SECRET ? "Set" : "Not Set",
@@ -71,19 +71,23 @@ app.get("/test-env", (req, res) => {
   });
 });
 
+// ✅ ROUTES
 app.use("/api/auth", authRoutes);
 app.use('/api/tables', tableRoutes);
 app.use('/api/foods', foodRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use("/api/image", imageRoutes);
-app.use('/api/admin/payments', paymentRoutes);
+app.use("/api/admin/payments", paymentRoutes);
 app.use('/api/bookings', bookingRouter);
 app.use('/api/payments', paymentRoutes);
 app.use("/api/restaurant", restaurantRoutes);
-app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 app.use('/api/webhook', webhookRoute);
+
+// ✅ Updated image route mount (so /api/upload works)
+app.use("/api", imageRoutes);
+
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -93,24 +97,30 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Log every incoming request
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
 let server;
 
 const startServer = async () => {
   try {
     await connectDB();
     server = app.listen(PORT, () => {
-      console.log(` Server running on http://localhost:${PORT}`);
+      console.log(`Server running on http://localhost:${PORT}`);
     });
 
     server.on('error', (error) => {
       if (error.code === 'EADDRINUSE') {
-        console.error(` Port ${PORT} is already in use. Please close the other process or change the port.`);
+        console.error(`Port ${PORT} is already in use. Please close the other process or change the port.`);
         process.exit(1);
       }
     });
 
   } catch (err) {
-    console.error(" Failed to start server:", err);
+    console.error("Failed to start server:", err);
     process.exit(1);
   }
 };
@@ -131,13 +141,8 @@ const gracefulShutdown = () => {
 process.on("SIGTERM", gracefulShutdown);
 process.on("SIGINT", gracefulShutdown);
 process.on("unhandledRejection", (err) => {
-  console.error(" Unhandled Rejection:", err);
+  console.error("Unhandled Rejection:", err);
   process.exit(1);
-});
-
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
-  next();
 });
 
 startServer();

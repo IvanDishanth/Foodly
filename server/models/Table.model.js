@@ -22,7 +22,9 @@ const tableSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-}, { timestamps: true });
+}, {
+  timestamps: true,
+});
 
 const Table = mongoose.model('Table', tableSchema);
 

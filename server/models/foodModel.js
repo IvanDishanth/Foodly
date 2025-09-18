@@ -3,26 +3,26 @@ import mongoose from 'mongoose';
 const foodSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   restaurant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Restaurant',
-    required: true
+    required: true,
   },
   price: {
     type: Number,
-    required: true
+    required: true,
   },
   isAvailable: {
     type: Boolean,
-    default: true
+    default: true,
   },
   image: {
     type: String,
-    default: 'https://placehold.co/150x100/888888/FFFFFF?text=New+Food'
-  }
-});
+    default: 'https://placehold.co/150x100/888888/FFFFFF?text=New+Food', // placeholder image URL
+  },
+}, { timestamps: true });
 
 const Food = mongoose.model('Food', foodSchema);
 

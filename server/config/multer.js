@@ -1,17 +1,15 @@
+// config/multer.js
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from './cloudinary.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads/'));
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'uploads', // Folder name in Cloudinary
+    allowed_formats: ['jpg', 'png', 'jpeg'],
+    transformation: [{ width: 800, height: 800, crop: 'limit' }],
   },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
 });
 
 const fileFilter = (req, file, cb) => {
@@ -22,10 +20,10 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
 export default upload;

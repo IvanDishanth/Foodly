@@ -7,6 +7,7 @@ import {
   getAllRestaurantsForUser,
   getRestaurantDetailsForUser,
   getAllFoodsForUser,
+  getAllTablesForUser,
 } from "../controllers/user.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 import multer from 'multer';
@@ -50,7 +51,7 @@ router.get("/restaurants/:id", getRestaurantDetailsForUser);
 
 // Get all food items for user
 router.get("/foods", getAllFoodsForUser);
-
+router.get("/tables", getAllTablesForUser);
 
 // Add test route for debugging
 router.put("/test", protect, upload.single('profilePic'), (req, res) => {

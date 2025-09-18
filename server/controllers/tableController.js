@@ -1,55 +1,69 @@
+// controllers/tableController.js
 import Table from '../models/Table.model.js';
 
 // Get all tables for a restaurant
-export const getTablesByRestaurant = async (req, res) => {
+export const getTables = async (req, res) => {
   try {
-    const restaurantId = req.user.restaurantId; // or from query
-    const tables = await Table.find({ restaurant: restaurantId });
+    const tables = await Table.find({ restaurant: req.user.restaurantId });
     res.status(200).json(tables);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching tables', error: err.message });
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving tables', error });
   }
 };
 
-// Add a new table
-export const addTable = async (req, res) => {
+// Create a new table
+export const createTable = async (req, res) => {
+  const { name, capacity } = req.body;
+  const restaurantId = req.user.restaurantId;
+  const image = req.file ? req.file.path : null;
+
+  const newTable = new Table({
+    name,
+    capacity,
+    image,
+    restaurant: restaurantId,
+  });
+
   try {
-    const { name, capacity } = req.body;
-    const restaurantId = req.user.restaurantId;
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
-
-    const newTable = new Table({
-      restaurant: restaurantId,
-      name,
-      capacity,
-      image,
-    });
-
-    const saved = await newTable.save();
-    res.status(201).json(saved);
-  } catch (err) {
-    res.status(500).json({ message: 'Error adding table', error: err.message });
+    const savedTable = await newTable.save();
+    res.status(201).json(savedTable);
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating table', error });
   }
 };
 
-// Update table
+// Update a table
 export const updateTable = async (req, res) => {
+  const { id } = req.params;
+  const { name, capacity, isAvailable } = req.body;
+  const image = req.file ? req.file.path : req.body.image;
+
   try {
-    const tableId = req.params.id;
-    const updated = await Table.findByIdAndUpdate(tableId, req.body, { new: true });
-    res.status(200).json(updated);
-  } catch (err) {
-    res.status(500).json({ message: 'Error updating table', error: err.message });
+    const updatedTable = await Table.findByIdAndUpdate(
+      id,
+      { name, capacity, isAvailable, image },
+      { new: true }
+    );
+    if (!updatedTable) {
+      return res.status(404).json({ message: 'Table not found' });
+    }
+    res.status(200).json(updatedTable);
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating table', error });
   }
 };
 
-// Delete table
+// Delete a table
 export const deleteTable = async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const tableId = req.params.id;
-    await Table.findByIdAndDelete(tableId);
-    res.status(200).json({ message: 'Table deleted' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error deleting table', error: err.message });
+    const deletedTable = await Table.findByIdAndDelete(id);
+    if (!deletedTable) {
+      return res.status(404).json({ message: 'Table not found' });
+    }
+    res.status(200).json({ message: 'Table deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting table', error });
   }
 };

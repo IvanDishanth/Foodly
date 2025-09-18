@@ -4,6 +4,7 @@ import Restaurant from "../models/restaurant.model.js";
 import Food from "../models/foodModel.js";
 import Table from "../models/Table.model.js";
 import { v2 as cloudinary } from 'cloudinary';
+import { deleteTable, getTables } from './tableController.js';
 
 // @desc   Get user profile
 // @route  GET /api/user
@@ -134,6 +135,16 @@ export const getRestaurantDetailsForUser = async (req, res) => {
     const tables = await Table.find({ restaurant: req.params.id });
 
     res.status(200).json({ ...restaurant.toObject(), foods, tables });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getAllTablesForUser = async (req, res) => {
+  try {
+    const tables = await Table.find();
+    res.status(200).json(tables);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

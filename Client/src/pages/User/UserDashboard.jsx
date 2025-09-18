@@ -11,6 +11,8 @@ import API from '../../api.js';
 import logo from "../../assets/Images/logo.png";
 import bg from "../../assets/Images/bg1.jpg";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function UserDashboard() {
   const [user, setUser] = useState(null);
@@ -32,6 +34,7 @@ function UserDashboard() {
         setUser(response.data);
       } catch (error) {
         console.error('Error fetching user profile:', error);
+        toast.error("Failed to fetch user. Please log in again.");
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           navigate('/login');
@@ -49,6 +52,7 @@ function UserDashboard() {
         setRestaurants(response.data);
       } catch (err) {
         setError("Failed to fetch restaurants");
+        toast.error("Failed to load restaurants!");
         console.error("Error fetching restaurants:", err);
       } finally {
         setLoading(false);
@@ -59,6 +63,18 @@ function UserDashboard() {
   
   const handleRestaurantClick = (id) => {
     navigate(`/restaurant/${id}`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await API.post("/user/logout");
+      setUser(null);
+      localStorage.removeItem('token');
+      toast.success("Logged out successfully!");
+      navigate('/login');
+    } catch (error) {
+      toast.error("Logout failed.");
+    }
   };
 
   const filteredRestaurants = restaurants.filter(restaurant => {
@@ -73,23 +89,20 @@ function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-900 font-sans">
+      <ToastContainer position="top-right" autoClose={3000} />
+
       {/* Header */}
       <header className="bg-black shadow-md p-1 fixed top-0 left-0 right-0 h-12 z-50">
         <div className="container mx-auto flex justify-between items-center h-full">
-         <Link to="/">
-                         <img src={logo} alt="Foodly Logo" className="h-8" />
-                     </Link>
+          <Link to="/">
+            <img src={logo} alt="Foodly Logo" className="h-8" />
+          </Link>
           <div className="flex items-center space-x-4">
             {user ? (
               <>
                 <button
                   className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
-                  onClick={async () => {
-                    await API.post("/user/logout"); // <-- use this endpoint
-                    setUser(null);
-                    localStorage.removeItem('token');
-                    navigate('/login');
-                  }}
+                  onClick={handleLogout}
                 >
                   Logout
                 </button>
@@ -113,27 +126,20 @@ function UserDashboard() {
     
       {/* Main Content */}
       <main className="pt-16 container mx-auto bg-gray-900">
-        {/* Fixed Navigation Tabs */}
+        {/* Tabs */}
         <div className="sticky top-10 z-40 bg-gray-900 h-16 pt-4">
           <div className="flex justify-center mb-10">
-            <button
-              className={`px-6 py-2  mx-2 rounded-t-lg ${activeTab === 'Dining Out' ? 'bg-[#FAB505] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
-              onClick={() => setActiveTab('Dining Out')}
-            >
-              Dining Out
-            </button>
-            <button
-              className={`px-6 py-2 mx-2 rounded-t-lg ${activeTab === 'Profile' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
-              onClick={() => setActiveTab('Profile')}
-            >
-              Profile
-            </button>
-            <button
-              className={`px-6 py-2  mx-2 rounded-t-lg ${activeTab === 'Booking History' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
-              onClick={() => setActiveTab('Booking History')}
-            >
-              Booking History
-            </button>
+            {['Dining Out', 'Profile', 'Booking History'].map(tab => (
+              <button
+                key={tab}
+                className={`px-6 py-2 mx-2 rounded-t-lg ${
+                  activeTab === tab ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -141,7 +147,7 @@ function UserDashboard() {
         <div className="bg-gray-900 rounded-lg p-4">
           {activeTab === 'Dining Out' ? (
             <>
-              {/* Search Bar */}
+              {/* Search Section */}
               <div className="mb-6">
                 <div className="relative">
                   <div
@@ -168,23 +174,22 @@ function UserDashboard() {
                 </div>
               </div>
 
-              {/* Dining Out Sub-tabs */}
+              {/* Sub-tabs */}
               <div className="flex justify-center mb-6">
-                <button
-                  className={`px-6 py-2  mx-2 rounded-lg ${activeDiningTab === 'Food' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
-                  onClick={() => setActiveDiningTab('Food')}
-                >
-                  Food
-                </button>
-                <button
-                  className={`px-6 py-2  mx-2 rounded-lg ${activeDiningTab === 'Place' ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'}`}
-                  onClick={() => setActiveDiningTab('Place')}
-                >
-                  Place
-                </button>
+                {['Food', 'Place'].map(tab => (
+                  <button
+                    key={tab}
+                    className={`px-6 py-2 mx-2 rounded-lg ${
+                      activeDiningTab === tab ? 'bg-[#FAB506] text-black' : 'bg-gray-200 hover:bg-gray-500'
+                    }`}
+                    onClick={() => setActiveDiningTab(tab)}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
 
-              {/* Content based on sub-tab */}
+              {/* Dynamic Section */}
               {activeDiningTab === 'Food' ? (
                 <FoodCategories onCategorySelect={(category) => {
                   setSearchQuery(category);
@@ -198,7 +203,7 @@ function UserDashboard() {
                 />
               )}
 
-              {/* All Restaurants Section */}
+              {/* Restaurant Grid */}
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4 text-gray-100">All Restaurants</h2>
                 {loading ? (

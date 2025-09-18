@@ -142,7 +142,7 @@ const About = () => {
       </div>
 
       {/* Add floating animation to CSS */}
-      <style jsx global>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(2deg); }
